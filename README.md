@@ -1,0 +1,1 @@
+# Online shop with Django
