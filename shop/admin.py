@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from shop.models import User, Category, Product, Address, Feedback, Image, Order, OrderItem
+from shop.models import User, Category, Product, Address, Feedback, Image, Order, OrderItem, ProductMaterial
 
 admin.site.register(User, UserAdmin)
 
@@ -21,6 +21,13 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ('price', 'is_available', 'stock')
     search_fields = ('name', )
     raw_id_fields = ('category', )
+
+
+@admin.register(ProductMaterial)
+class ProductMaterialAdmin(admin.ModelAdmin):
+    list_display = ('name', 'product')
+    search_fields = ('name', )
+    raw_id_fields = ('product', )
 
 
 @admin.register(Address)

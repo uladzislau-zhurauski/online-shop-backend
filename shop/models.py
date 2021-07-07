@@ -8,7 +8,8 @@ class User(AbstractUser):
 
 
 class Address(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses',
+                             db_column='user_id')
     country = models.CharField(max_length=100)
     region = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -28,9 +29,8 @@ class Address(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
-    # slug = models.SlugField(max_length=200, unique=True)
     parent_category = models.ForeignKey('self', on_delete=models.CASCADE, related_name='child_categories', blank=True,
-                                        null=True)
+                                        null=True, db_column='parent_category_id')
 
     class Meta:
         verbose_name = 'Category'
@@ -43,12 +43,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', db_column='category_id')
     name = models.CharField(max_length=200, db_index=True)
-    # slug = models.SlugField(max_length=200, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    materials = models.CharField(max_length=150)
     size = models.CharField(max_length=10)
     weight = models.FloatField()
     stock = models.PositiveSmallIntegerField()
@@ -58,19 +56,27 @@ class Product(models.Model):
 
     class Meta:
         ordering = ('category', 'name')
-        # indexes = [
-        #     models.Index(fields=['id', 'slug'])
-        # ]
 
     def __str__(self):
         return f'Product {self.name} of {self.category}'
 
 
+class ProductMaterial(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='materials', db_column='product_id')
+    name = models.CharField(max_length=20)
+
+    class Meta:
+        ordering = ('name', )
+
+    def __str__(self):
+        return f'Product material {self.name} of product {self.product.name}'
+
+
 class Feedback(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='feedback')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback',
+                               db_column='author_id')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='feedback', db_column='product_id')
     title = models.CharField(max_length=200)
-    # slug = models.SlugField(max_length=150)
     content = models.TextField()
     is_moderated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -82,14 +88,16 @@ class Feedback(models.Model):
         ordering = ('title', 'author', 'product')
 
     def __str__(self):
-        return f'Feedback of user {self.author} on product {self.product}'
+        return f'Feedback of user {self.author} on product {self.product.name}'
 
 
 class Image(models.Model):
     image = models.ImageField()
     tip = models.CharField(max_length=100)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', blank=True, null=True)
-    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='images', blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', blank=True, null=True,
+                                db_column='product_id')
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='images', blank=True, null=True,
+                                 db_column='feedback_id')
 
     class Meta:
         ordering = ('product', 'feedback')
@@ -107,8 +115,9 @@ class Image(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders',
+                             db_column='user_id')
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='orders', db_column='address_id')
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -121,8 +130,8 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items', db_column='product_id')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items', db_column='order_id')
     quantity = models.PositiveSmallIntegerField()
 
     class Meta:
