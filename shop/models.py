@@ -98,6 +98,13 @@ class Image(models.Model):
         image_type = 'Product' if self.product else 'Feedback'
         return f'{image_type} image of {self.product or self.feedback}'
 
+    def save(self, *args, **kwargs):
+        if self.product and self.feedback:
+            raise ValueError("Cannot set both product and feedback. Image must be related to either product only "
+                             "or feedback only.")
+
+        super().save(*args, **kwargs)
+
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
