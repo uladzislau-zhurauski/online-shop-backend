@@ -83,3 +83,6 @@ On Linux: `source venv/bin/activate`
 ### Step 4: Run the project
 1. Start the server by running this command:  
 `python manage.py runserver`
+
+## Troubleshooting
+1. If you are having trouble installing the `psycopg2` package while running `pip install -r requirements.txt`, check [the build prerequisites](https://www.psycopg.org/docs/install.html#build-prerequisites).
