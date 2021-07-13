@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 
+from shop.managers import AvailableManager
+
 
 class User(AbstractUser):
     phone_number = models.CharField(max_length=15)
@@ -40,11 +42,6 @@ class Category(models.Model):
     def __str__(self):
         category_type = 'Subcategory' if self.parent_category else 'Category'
         return f'{category_type} {self.name}'
-
-
-class AvailableManager(models.Manager):
-    def get_queryset(self):
-        return super(AvailableManager, self).get_queryset().filter(is_available=True)
 
 
 class Product(models.Model):
