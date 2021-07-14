@@ -52,8 +52,8 @@ def get_image_models():
 
 def image_directory_path(instance, filename):
     model_name = type(instance.content_object).__name__.lower()  # e.g. product
-    folder_name = f'{model_name}_images/{model_name}'  # e.g. 'product_images/product
-    return f'{folder_name}_{instance.content_object.id}/{filename}'  # e.g. 'product_images/product_<id>/<filename>
+    folder_name = f'{model_name}_images/{model_name}'  # e.g. product_images/product
+    return f'{folder_name}_{instance.content_object.id}/{filename}'  # e.g. product_images/product_<id>/<filename>
 
 
 def content_type_choices():
