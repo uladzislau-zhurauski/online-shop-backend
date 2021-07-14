@@ -16,7 +16,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'is_available', 'stock', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'category', 'price', 'is_available', 'stock', 'created_at', 'updated_at')
     list_filter = ('is_available', 'created_at', 'updated_at')
     list_editable = ('price', 'is_available', 'stock')
     search_fields = ('name', )
@@ -40,7 +40,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('author', 'product', 'title', 'is_moderated', 'created_at', 'updated_at')
+    list_display = ('id', 'author', 'product', 'title', 'is_moderated', 'created_at', 'updated_at')
     list_filter = ('is_moderated', 'created_at', 'updated_at')
     list_editable = ('title', 'is_moderated')
     search_fields = ('title', )
@@ -49,11 +49,10 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ('tip', 'image', 'product', 'feedback')
-    list_filter = ('product', 'feedback')
+    list_display = ('tip', 'image', 'content_type', 'object_id', 'content_object')
+    list_filter = ('content_type', )
     list_editable = ('tip', )
-    list_display_links = ('product', 'feedback')
-    raw_id_fields = ('product', 'feedback')
+    list_display_links = ('content_type', 'object_id', 'content_object')
 
 
 @admin.register(Order)
