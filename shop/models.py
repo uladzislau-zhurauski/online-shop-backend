@@ -1,4 +1,6 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.conf import settings
 
@@ -44,6 +46,46 @@ class Category(models.Model):
         return f'{category_type} {self.name}'
 
 
+def get_image_models():
+    return Product, Feedback
+
+
+def image_directory_path(instance, filename):
+    model_name = type(instance.content_object).__name__.lower()  # e.g. product
+    folder_name = f'{model_name}_images/{model_name}'  # e.g. 'product_images/product
+    return f'{folder_name}_{instance.content_object.id}/{filename}'  # e.g. 'product_images/product_<id>/<filename>
+
+
+def content_type_choices():
+    return {'model__in': (model.__name__.lower() for model in get_image_models())}
+
+
+class Image(models.Model):
+    image = models.ImageField(upload_to=image_directory_path)
+    tip = models.CharField(max_length=255, blank=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=content_type_choices,
+                                     db_column='content_type_id')
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        ordering = ('content_type', 'tip')
+
+    def __str__(self):
+        return f'Image of {self.content_object}'
+
+    def save(self, *args, **kwargs):
+        if not self.content_object:
+            raise ValueError('Such an object doesn\'t exist')
+
+        if type(self.content_object) not in get_image_models():
+            raise ValueError('This class does not support images')
+
+        self.tip = self.image.name
+        super().save(*args, **kwargs)
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', db_column='category_id')
     name = models.CharField(max_length=255, db_index=True)
@@ -55,6 +97,8 @@ class Product(models.Model):
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    images = GenericRelation(Image)
 
     objects = models.Manager()
     available_products = AvailableManager()
@@ -87,6 +131,8 @@ class Feedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    images = GenericRelation(Image)
+
     class Meta:
         verbose_name = 'Feedback'
         verbose_name_plural = 'Feedback'
@@ -94,41 +140,6 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f'Feedback of user {self.author} on product {self.product.name}'
-
-
-def image_directory_path(instance, filename):
-    product = instance.product
-    folder_name = f'product_images/product_{product.id}' if product \
-        else f'feedback_images/feedback_{instance.feedback.id}'
-
-    return f'{folder_name}/{filename}'
-
-
-class Image(models.Model):
-    image = models.ImageField(upload_to=image_directory_path)
-    tip = models.CharField(max_length=255, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', blank=True, null=True,
-                                db_column='product_id')
-    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='images', blank=True, null=True,
-                                 db_column='feedback_id')
-
-    class Meta:
-        ordering = ('product', 'feedback')
-
-    def __str__(self):
-        image_type = 'Product' if self.product else 'Feedback'
-        return f'{image_type} image of {self.product or self.feedback}'
-
-    def save(self, *args, **kwargs):
-        if self.product and self.feedback:
-            raise ValueError("Cannot set both product and feedback. Image must be related to either product only "
-                             "or feedback only.")
-        if not self.product and not self.feedback:
-            raise ValueError("Cannot set both product and feedback to null. Image must be related to the product "
-                             "or feedback.")
-
-        self.tip = self.image.name
-        super().save(*args, **kwargs)
 
 
 class Order(models.Model):
