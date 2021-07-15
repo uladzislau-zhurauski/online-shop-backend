@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.conf import settings
 
-from shop.managers import AvailableManager
+from shop.managers import AvailableManager, ModeratedManager
 
 
 class User(AbstractUser):
@@ -134,6 +134,9 @@ class Feedback(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     images = GenericRelation(Image)
+
+    objects = models.Manager()
+    moderated_feedback = ModeratedManager()
 
     class Meta:
         verbose_name = 'Feedback'
