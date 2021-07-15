@@ -80,7 +80,9 @@ class Image(models.Model):
             raise ValueError('Such an object doesn\'t exist')
 
         if type(self.content_object) not in get_image_models():
-            raise ValueError('This class does not support images')
+            raise ValueError(f'The selected class \'{type(self.content_object).__name__}\' does not support images.\n'
+                             f'The following classes support images:\n'
+                             f'{[model.__name__ for model in get_image_models()]}')
 
         self.tip = self.image.name
         super().save(*args, **kwargs)
