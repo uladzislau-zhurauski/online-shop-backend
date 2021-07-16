@@ -14,7 +14,7 @@ class FeedbackController:
     def create_feedback(cls, author, product, title, content):
         Feedback.objects.create(author=author, product=product, title=title, content=content)
 
-        # Sending email to admin
+        # TODO Sending email to admin
 
         return
 
@@ -30,7 +30,7 @@ class FeedbackController:
     def update_feedback(cls, feedback_pk, product, title, content):
         FeedbackDAL.update_feedback(cls.get_feedback(feedback_pk), product, title, content)
 
-        # Sending email to admin
+        # TODO Sending email to admin
 
         return
 
