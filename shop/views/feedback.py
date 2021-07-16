@@ -13,7 +13,6 @@ class FeedbackList(APIView):
     @classmethod
     def get(cls, request):
         feedback = FeedbackController.get_feedback_list()
-
         data = FeedbackListSerializer(instance=feedback, many=True, context={'request': request}).data
 
         return Response(data)
@@ -21,9 +20,7 @@ class FeedbackList(APIView):
     @classmethod
     def post(cls, request):
         serializer = FeedbackInputSerializer(data=request.data)
-
         serializer.is_valid(raise_exception=True)
-
         FeedbackController.create_feedback(request.user, **serializer.validated_data)
 
         return Response(status=status.HTTP_201_CREATED)
@@ -36,7 +33,6 @@ class FeedbackDetail(APIView):
     @classmethod
     def get(cls, request, pk):
         feedback = FeedbackController.get_feedback(pk)
-
         data = FeedbackDetailSerializer(instance=feedback, context={'request': request}).data
 
         return Response(data)
@@ -45,10 +41,9 @@ class FeedbackDetail(APIView):
     def put(cls, request, pk):
         serializer = FeedbackInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         FeedbackController.update_feedback(pk, **serializer.validated_data)
-
         data = FeedbackDetailSerializer(instance=FeedbackController.get_feedback(pk)).data
+
         return Response(data)
 
     @classmethod
