@@ -1,14 +1,17 @@
-from rest_framework import status, permissions
+from functools import wraps
+
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
-from shop.permissions import IsOwnerOrSuperuserOrReadOnly
+from shop.permissions import IsOwnerOrAdmin
 from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer, FeedbackInputSerializer
 
 
 class FeedbackList(APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     @classmethod
     def get(cls, request):
@@ -26,9 +29,19 @@ class FeedbackList(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
+def check_permissions(get_object_func):
+    def check_permissions_decorator(http_method):
+        @wraps(http_method)
+        def wrapper(self, *method_args, **method_kwargs):
+            request, pk = method_args[0], method_kwargs['pk']
+            self.check_object_permissions(request, get_object_func(pk))
+            return http_method(self, *method_args, **method_kwargs)
+        return wrapper
+    return check_permissions_decorator
+
+
 class FeedbackDetail(APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrSuperuserOrReadOnly]
+    permission_classes = [IsOwnerOrAdmin]
 
     @classmethod
     def get(cls, request, pk):
@@ -37,8 +50,8 @@ class FeedbackDetail(APIView):
 
         return Response(data)
 
-    @classmethod
-    def put(cls, request, pk):
+    @check_permissions(FeedbackController.get_feedback)
+    def put(self, request, pk):
         serializer = FeedbackInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         FeedbackController.update_feedback(pk, **serializer.validated_data)
@@ -46,8 +59,8 @@ class FeedbackDetail(APIView):
 
         return Response(data)
 
-    @classmethod
-    def delete(cls, request, pk):
+    @check_permissions(FeedbackController.get_feedback)
+    def delete(self, request, pk):
         FeedbackController.delete_feedback(pk)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
