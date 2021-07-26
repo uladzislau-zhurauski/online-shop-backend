@@ -8,7 +8,7 @@ class FeedbackListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feedback
-        fields = ('url', 'author', 'product', 'title', 'content', 'images')
+        fields = ('author', 'product', 'title', 'content', 'images')
 
 
 class FeedbackDetailSerializer(serializers.ModelSerializer):
