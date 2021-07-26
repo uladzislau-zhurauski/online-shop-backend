@@ -9,8 +9,7 @@ class ProductList(APIView):
     @classmethod
     def get(cls, request, category_pk=None):
         products = ProductController.get_product_list(category_pk)
-
-        data = ProductListSerializer(instance=products, many=True, context={'request': request}).data
+        data = ProductListSerializer(instance=products, many=True).data
 
         return Response(data)
 
@@ -19,7 +18,6 @@ class ProductDetail(APIView):
     @classmethod
     def get(cls, request, pk):
         product = ProductController.get_product(pk)
-
-        data = ProductDetailSerializer(instance=product, context={'request': request}).data
+        data = ProductDetailSerializer(instance=product).data
 
         return Response(data)

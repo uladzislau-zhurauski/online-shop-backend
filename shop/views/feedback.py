@@ -16,9 +16,9 @@ class FeedbackList(APIView):
     @classmethod
     def get(cls, request):
         feedback = FeedbackController.get_feedback_list()
-        data = FeedbackListSerializer(instance=feedback, many=True, context={'request': request}).data
+        data = FeedbackListSerializer(instance=feedback, many=True).data
 
-        return Response(data)
+        return Response(data, status.HTTP_200_OK)
 
     @classmethod
     def post(cls, request):
@@ -46,18 +46,17 @@ class FeedbackDetail(APIView):
     @classmethod
     def get(cls, request, pk):
         feedback = FeedbackController.get_feedback(pk)
-        data = FeedbackDetailSerializer(instance=feedback, context={'request': request}).data
+        data = FeedbackDetailSerializer(instance=feedback).data
 
-        return Response(data)
+        return Response(data, status.HTTP_200_OK)
 
     @check_permissions(FeedbackController.get_feedback)
     def put(self, request, pk):
         serializer = FeedbackInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         FeedbackController.update_feedback(pk, **serializer.validated_data)
-        data = FeedbackDetailSerializer(instance=FeedbackController.get_feedback(pk)).data
 
-        return Response(data)
+        return Response(status=status.HTTP_200_OK)
 
     @check_permissions(FeedbackController.get_feedback)
     def delete(self, request, pk):
