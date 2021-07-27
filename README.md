@@ -25,7 +25,12 @@ This is an online shop for handmade goods. It is developed in Django + DRF + Pos
    - With the second line you are also setting the default transaction isolation scheme to “read committed”, that blocks reads from uncommitted transactions.
    - Finally, by default Django timezone is UTC we are setting our database’s timezone to UTC.
 1. Grant your new user access to the database you created earlier:  
-`GRANT ALL PRIVILEGES ON DATABASE your_db_name TO <your_name>;`
+    ```postgresql
+    GRANT ALL PRIVILEGES ON DATABASE your_db_name TO <your_name>;
+    ALTER USER <your_name> CREATEDB;
+    ```
+   - In the first line you are granting your user all permissions on your database.
+   - With the second line you are also granting your user permission to create databases. This is necessary to run the tests because the test database is created under your user during the tests and after all tests are finished it is deleted. 
 
 ### Step 2: Cloning the project, creating a virtual environment & installing necessary Python packages
 1. Clone the project and get inside:  
@@ -83,6 +88,18 @@ On Linux: `source venv/bin/activate`
 ### Step 4: Run the project
 1. Start the server by running this command:  
 `python manage.py runserver`
+
+## Launching tests
+
+### Prerequisites
+1. You have fully completed [workflow example](#workflow-example).
+1. You are in the root of the project and have activated virtual env as described in [Step 2](#step-2:-cloning-the-project,-creating-a-virtual-environment-&-installing-necessary-python-packages) of workflow example.
+
+### Step 1: Run tests
+1. The tests are written with `pytest`, so all the options of [this testing tool](https://docs.pytest.org/en/stable/) are available. To just run all tests, type `pytest`. You can check out other options [here](https://docs.pytest.org/en/stable/usage.html#specifying-tests-selecting-tests).
+
+### Step 2: View code coverage report
+1. After running tests, the coverage report is generated. It will create a folder named `htmlcov` in the project root. You can open the `index.html` file in your browser and check the coverage.
 
 ## Troubleshooting
 1. If you are having trouble installing the `psycopg2` package while running `pip install -r requirements.txt`, check [the build prerequisites](https://www.psycopg.org/docs/install.html#build-prerequisites).
