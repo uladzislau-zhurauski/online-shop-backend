@@ -1,32 +1,44 @@
 import pytest
+from django.contrib.contenttypes.models import ContentType
 from pytest_factoryboy import register
 
-from shop.tests.factories.category import CategoryFactory
-from shop.tests.factories.feedback import FeedbackFactory
-from shop.tests.factories.product import ProductFactory
-from shop.tests.factories.user import UserFactory
+from shop.tests.factories import ProductFactory, CategoryFactory, FeedbackFactory, UserFactory, AddressFactory, \
+    ImageFactory, OrderFactory, OrderItemFactory, ProductMaterialFactory
 
-# register(EntityFactory) gives 'entity_factory' and 'entity' fixtures
+# register(EntityFactory) gives 'entity_factory' and 'entity' fixtures with function scope
 register(ProductFactory)
 register(CategoryFactory)
 register(FeedbackFactory)
 register(UserFactory)
+register(AddressFactory)
+register(ImageFactory)
+register(OrderFactory)
+register(OrderItemFactory)
+register(ProductMaterialFactory)
 
 
 @pytest.fixture(scope='session')
 def django_db_setup(django_db_setup, django_db_blocker): # NOQA
     with django_db_blocker.unblock():
-        category = CategoryFactory()
+        multiple_product_category = CategoryFactory()
         for _ in range(5):
-            FeedbackFactory(is_moderated=True)
+            feedback = FeedbackFactory(is_moderated=True)
             FeedbackFactory()
 
-            CategoryFactory()
+            CategoryFactory(subcategory=True)
 
-            ProductFactory(category=category)  # to have available products in the same category
-            ProductFactory(category=category, is_available=False)  # to have unavailable products in the same category
+            # to have available products in the same category
+            product = ProductFactory(category=multiple_product_category)
+            # to have unavailable products in the same category
+            ProductFactory(category=multiple_product_category, is_available=False)
             ProductFactory(is_available=False)  # to have unavailable products in another category
             ProductFactory()  # to have available products in another category
+
+            ProductMaterialFactory()
+            OrderFactory()
+            OrderItemFactory()
+            ImageFactory(object_id=product.pk, content_type=ContentType.objects.get_for_model(product))
+            ImageFactory(object_id=feedback.pk, content_type=ContentType.objects.get_for_model(feedback))
 
 
 @pytest.fixture(scope='session')

@@ -57,7 +57,7 @@ def image_directory_path(instance, filename):
 
 
 def content_type_choices():
-    return {'model__in': (model.__name__.lower() for model in get_image_models())}
+    return {'model__in': [model.__name__.lower() for model in get_image_models()]}
 
 
 class Image(models.Model):
