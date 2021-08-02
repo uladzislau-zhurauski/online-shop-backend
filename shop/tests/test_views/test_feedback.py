@@ -4,6 +4,7 @@ from rest_framework import status
 
 from shop.models import Feedback
 from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer
+from shop.tests.conftest import nonexistent_pk
 
 
 @pytest.mark.django_db
@@ -26,7 +27,7 @@ class TestFeedbackViews:
         (None, None, None, status.HTTP_400_BAD_REQUEST),
         (None, None, 'content', status.HTTP_400_BAD_REQUEST),
         (None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (123, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+        (nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
         (1, None, 'content', status.HTTP_400_BAD_REQUEST),
         (1, 'title', None, status.HTTP_400_BAD_REQUEST),
         (1, 'title', 'content', status.HTTP_201_CREATED),
@@ -43,7 +44,6 @@ class TestFeedbackViews:
         assert response.status_code == status_code
 
     def test_get_feedback_detail_with_wrong_pk(self, api_client):
-        nonexistent_pk = 100
         url = reverse('feedback-detail', kwargs={'pk': nonexistent_pk})
         response = api_client.get(url)
 
@@ -97,7 +97,7 @@ class TestFeedbackViews:
         (None, None, None, status.HTTP_400_BAD_REQUEST),
         (None, None, 'content', status.HTTP_400_BAD_REQUEST),
         (None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (123, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+        (nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
         (1, None, 'content', status.HTTP_400_BAD_REQUEST),
         (1, 'title', None, status.HTTP_400_BAD_REQUEST),
         (1, 'title', 'content', status.HTTP_200_OK),

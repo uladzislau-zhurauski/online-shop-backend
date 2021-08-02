@@ -18,7 +18,7 @@ register(ProductMaterialFactory)
 
 
 @pytest.fixture(scope='session')
-def django_db_setup(django_db_setup, django_db_blocker): # NOQA
+def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
     with django_db_blocker.unblock():
         multiple_product_category = CategoryFactory()
         for _ in range(5):
@@ -62,3 +62,6 @@ def authenticated_api_staff_client(db, api_client, user_factory):
     api_client.force_authenticate(user=user_factory(is_staff=True))
     yield api_client
     api_client.force_authenticate(user=None)
+
+
+nonexistent_pk = 0

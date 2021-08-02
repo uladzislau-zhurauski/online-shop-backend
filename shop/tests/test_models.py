@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from shop.models import Category, Product, ProductMaterial, Feedback, Order, OrderItem, Image, image_directory_path, \
     content_type_choices, Address
+from shop.tests.conftest import nonexistent_pk
 
 
 @pytest.mark.django_db
@@ -62,7 +63,7 @@ def test_image_str():
 @pytest.mark.django_db
 @pytest.mark.xfail(raises=ValueError)
 def test_image_create_with_nonexistent_object(image_factory):
-    image_factory(object_id=1000, content_type=ContentType.objects.get_for_model(Product))
+    image_factory(object_id=nonexistent_pk, content_type=ContentType.objects.get_for_model(Product))
 
 
 @pytest.mark.django_db
@@ -86,7 +87,7 @@ def test_image_update_with_wrong_model():
 @pytest.mark.xfail(raises=ValueError)
 def test_image_update_with_nonexistent_object():
     image = Image.objects.first()
-    image.object_id = 1000
+    image.object_id = nonexistent_pk
     image.save()
 
 

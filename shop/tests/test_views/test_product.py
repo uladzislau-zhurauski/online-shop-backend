@@ -5,6 +5,7 @@ from rest_framework import status
 
 from shop.models import Product, Category
 from shop.serializers.product import ProductListSerializer, ProductDetailSerializer
+from shop.tests.conftest import nonexistent_pk
 
 
 @pytest.mark.django_db
@@ -36,7 +37,6 @@ class TestProductViews:
         assert response.data == ProductListSerializer(products, many=True).data
 
     def test_product_detail_with_nonexistent_pk(self, api_client):
-        nonexistent_pk = 100
         url = reverse('product-detail', kwargs={'pk': nonexistent_pk})
         response = api_client.get(url)
 
