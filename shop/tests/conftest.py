@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from pytest_factoryboy import register
@@ -15,6 +17,8 @@ register(ImageFactory)
 register(OrderFactory)
 register(OrderItemFactory)
 register(ProductMaterialFactory)
+
+nonexistent_pk = 0
 
 
 @pytest.fixture(scope='session')
@@ -41,7 +45,7 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
             ImageFactory(object_id=feedback.pk, content_type=ContentType.objects.get_for_model(feedback))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def api_client():
     from rest_framework.test import APIClient
     return APIClient()
@@ -49,19 +53,31 @@ def api_client():
 
 @pytest.fixture
 def authenticated_api_client(db, api_client, user_factory):
-    def create_auth_api_client(user=None):
-        api_client.force_authenticate(user=user or user_factory())
+    def create_auth_api_client(is_admin, user=None):
+        api_client.force_authenticate(user=user or user_factory(is_staff=is_admin))
         return api_client
 
     yield create_auth_api_client
     api_client.force_authenticate(user=None)
 
 
+class ClientType(Enum):
+    NOT_AUTH_CLIENT = auto()
+    AUTH_CLIENT = auto()
+    AUTHOR_CLIENT = auto()
+    ADMIN_CLIENT = auto()
+
+
 @pytest.fixture
-def authenticated_api_staff_client(db, api_client, user_factory):
-    api_client.force_authenticate(user=user_factory(is_staff=True))
-    yield api_client
-    api_client.force_authenticate(user=None)
+def multi_client(api_client, authenticated_api_client):
+    def _multi_client(client_type, user=None):
+        if client_type is ClientType.NOT_AUTH_CLIENT:
+            return api_client
+        elif client_type is ClientType.AUTH_CLIENT or client_type == ClientType.AUTHOR_CLIENT:
+            return authenticated_api_client(is_admin=False, user=user)
+        elif client_type is ClientType.ADMIN_CLIENT:
+            return authenticated_api_client(is_admin=True, user=user)
+        else:
+            raise ValueError(f'Unhandled value: {client_type} ({type(client_type).__name__})')
 
-
-nonexistent_pk = 0
+    return _multi_client

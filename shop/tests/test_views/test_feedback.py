@@ -4,7 +4,7 @@ from rest_framework import status
 
 from shop.models import Feedback
 from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer
-from shop.tests.conftest import nonexistent_pk
+from shop.tests.conftest import nonexistent_pk, ClientType
 
 
 @pytest.mark.django_db
@@ -17,46 +17,41 @@ class TestFeedbackViews:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == FeedbackListSerializer(instance=feedback_list, many=True).data
 
-    def test_forbidden_post_feedback_list(self, api_client):
-        url = reverse('feedback-list')
-        response = api_client.post(url)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    @pytest.mark.parametrize('feedback_product, title, content, status_code', [
-        (None, None, None, status.HTTP_400_BAD_REQUEST),
-        (None, None, 'content', status.HTTP_400_BAD_REQUEST),
-        (None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (1, None, 'content', status.HTTP_400_BAD_REQUEST),
-        (1, 'title', None, status.HTTP_400_BAD_REQUEST),
-        (1, 'title', 'content', status.HTTP_201_CREATED),
+    @pytest.mark.parametrize('client_type, feedback_product, title, content, status_code', [
+        (ClientType.NOT_AUTH_CLIENT, None, None, None, status.HTTP_403_FORBIDDEN),
+        (ClientType.AUTH_CLIENT, None, None, None, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, 1, 'title', 'content', status.HTTP_201_CREATED),
     ])
-    def test_auth_post_feedback_list(self, feedback_product, title, content, status_code, authenticated_api_client):
+    def test_post_feedback(self, client_type, feedback_product, title, content, status_code, multi_client):
         url = reverse('feedback-list')
         data = {
             'product': feedback_product or '',
             'title': title or '',
             'content': content or ''
         }
-        response = authenticated_api_client().post(url, data=data)
+        response = multi_client(client_type, None).post(url, data=data)
 
         assert response.status_code == status_code
 
-    def test_get_feedback_detail_with_wrong_pk(self, api_client):
+    def test_get_feedback_with_nonexistent_pk(self, api_client):
         url = reverse('feedback-detail', kwargs={'pk': nonexistent_pk})
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_get_unmoderated_feedback_detail(self, api_client):
+    def test_get_unmoderated_feedback(self, api_client):
         unmoderated_feedback = Feedback.objects.filter(is_moderated=False).first()
         url = reverse('feedback-detail', kwargs={'pk': unmoderated_feedback.pk})
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_get_moderated_feedback_detail(self, api_client):
+    def test_get_moderated_feedback(self, api_client):
         moderated_feedback = Feedback.moderated_feedback.first()
         url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
         response = api_client.get(url)
@@ -64,46 +59,26 @@ class TestFeedbackViews:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == FeedbackDetailSerializer(instance=moderated_feedback).data
 
-    def test_not_auth_put_feedback_detail(self, api_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = api_client.put(url)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_auth_client_not_author_put_feedback_detail(self, authenticated_api_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = authenticated_api_client().put(url)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_admin_put_feedback_detail(self, authenticated_api_staff_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = authenticated_api_staff_client.put(url)
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    def test_author_put_feedback_detail(self, authenticated_api_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        feedback_author_client = authenticated_api_client(user=moderated_feedback.author)
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = feedback_author_client.put(url)
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    @pytest.mark.parametrize('feedback_product, title, content, status_code', [
-        (None, None, None, status.HTTP_400_BAD_REQUEST),
-        (None, None, 'content', status.HTTP_400_BAD_REQUEST),
-        (None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (1, None, 'content', status.HTTP_400_BAD_REQUEST),
-        (1, 'title', None, status.HTTP_400_BAD_REQUEST),
-        (1, 'title', 'content', status.HTTP_200_OK),
-    ])
-    def test_auth_put_feedback_detail(self, feedback_product, title, content, status_code,
-                                      authenticated_api_staff_client):
+    @pytest.mark.parametrize(
+        'client_type, feedback_product, title, content, status_code', [
+            (ClientType.NOT_AUTH_CLIENT, None, None, None, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, None, None, None, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, None, None, None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, 1, 'title', 'content', status.HTTP_200_OK),
+            (ClientType.AUTHOR_CLIENT, None, None, None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, 1, 'title', 'content', status.HTTP_200_OK),
+        ])
+    def test_put_feedback(self, client_type, status_code, feedback_product, title, content, multi_client):
         moderated_feedback = Feedback.moderated_feedback.first()
         url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
         data = {
@@ -111,35 +86,23 @@ class TestFeedbackViews:
             'title': title or '',
             'content': content or ''
         }
-        response = authenticated_api_staff_client.put(url, data=data)
+        user = moderated_feedback.author if client_type is ClientType.AUTHOR_CLIENT else None
+        response = multi_client(client_type, user).put(url, data=data)
 
         assert response.status_code == status_code
 
-    def test_not_auth_client_delete_feedback(self, api_client):
+    @pytest.mark.parametrize(
+        'client_type, status_code', [
+            pytest.param(ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
+            pytest.param(ClientType.AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
+            pytest.param(ClientType.ADMIN_CLIENT, status.HTTP_204_NO_CONTENT),
+            pytest.param(ClientType.AUTHOR_CLIENT, status.HTTP_204_NO_CONTENT),
+        ]
+    )
+    def test_delete_feedback(self, client_type, status_code, multi_client):
         moderated_feedback = Feedback.moderated_feedback.first()
         url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = api_client.delete(url)
+        user = moderated_feedback.author if client_type is ClientType.AUTHOR_CLIENT else None
+        response = multi_client(client_type, user).delete(url)
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_not_author_delete_feedback(self, authenticated_api_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = authenticated_api_client().delete(url)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_admin_delete_feedback(self, authenticated_api_staff_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = authenticated_api_staff_client.delete(url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    def test_author_delete_feedback(self, authenticated_api_client):
-        moderated_feedback = Feedback.moderated_feedback.first()
-        author_client = authenticated_api_client(moderated_feedback.author)
-        url = reverse('feedback-detail', kwargs={'pk': moderated_feedback.pk})
-        response = author_client.delete(url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.status_code == status_code

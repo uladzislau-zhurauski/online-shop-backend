@@ -10,7 +10,7 @@ from shop.tests.conftest import nonexistent_pk
 
 @pytest.mark.django_db
 class TestProductViews:
-    def test_product_list(self, api_client):
+    def test_get_product_list(self, api_client):
         products = Product.available_products.all()
         url = reverse('product-list')
         response = api_client.get(url)
@@ -18,7 +18,7 @@ class TestProductViews:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == ProductListSerializer(products, many=True).data
 
-    def test_empty_product_list_by_category(self, api_client):
+    def test_get_empty_product_list_by_category(self, api_client):
         category = Category.objects.filter(products=None).first()
         url = reverse('product-list-by-category', kwargs={'category_pk': category.pk})
         response = api_client.get(url)
@@ -26,7 +26,7 @@ class TestProductViews:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == []
 
-    def test_existing_product_list_by_category(self, api_client):
+    def test_get_existing_product_list_by_category(self, api_client):
         multiple_products_category = Category.objects.annotate(products_count=Count('products')).\
             filter(products_count__gt=1, products__is_available=True).first()
         products = Product.available_products.filter(category=multiple_products_category)
@@ -36,20 +36,20 @@ class TestProductViews:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == ProductListSerializer(products, many=True).data
 
-    def test_product_detail_with_nonexistent_pk(self, api_client):
+    def test_get_product_with_nonexistent_pk(self, api_client):
         url = reverse('product-detail', kwargs={'pk': nonexistent_pk})
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_unavailable_product_detail(self, api_client):
+    def test_get_unavailable_product(self, api_client):
         unavailable_product = Product.objects.filter(is_available=False).first()
         url = reverse('product-detail', kwargs={'pk': unavailable_product.pk})
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_existing_product_detail(self, api_client):
+    def test_get_existing_product(self, api_client):
         product = Product.available_products.first()
         url = reverse('product-detail', kwargs={'pk': product.pk})
         response = api_client.get(url)
