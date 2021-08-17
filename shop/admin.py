@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 from shop.models import User, Category, Product, Address, Feedback, Image, Order, OrderItem, ProductMaterial
 
@@ -14,6 +15,10 @@ class CategoryAdmin(admin.ModelAdmin):
     raw_id_fields = ('parent_category', )
 
 
+class ImageInline(GenericTabularInline):
+    model = Image
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'category', 'price', 'is_available', 'stock', 'created_at', 'updated_at')
@@ -21,6 +26,9 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ('price', 'is_available', 'stock')
     search_fields = ('name', )
     raw_id_fields = ('category', )
+    inlines = [
+        ImageInline,
+    ]
 
 
 @admin.register(ProductMaterial)
@@ -45,10 +53,14 @@ class FeedbackAdmin(admin.ModelAdmin):
     list_editable = ('title', 'is_moderated')
     search_fields = ('title', )
     raw_id_fields = ('author', 'product')
+    inlines = [
+        ImageInline
+    ]
 
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
+    exclude = ('tip', )
     list_display = ('tip', 'image', 'content_type', 'object_id', 'content_object')
     list_filter = ('content_type', )
     list_editable = ('tip', )
