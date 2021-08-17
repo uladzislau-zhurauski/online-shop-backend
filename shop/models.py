@@ -76,14 +76,6 @@ class Image(models.Model):
         return f'Image of {self.content_object}'
 
     def save(self, *args, **kwargs):
-        if not self.content_object:
-            raise ValueError('Such an object doesn\'t exist')
-
-        if type(self.content_object) not in get_image_models():
-            raise ValueError(f'The selected class \'{type(self.content_object).__name__}\' does not support images.\n'
-                             f'The following classes support images:\n'
-                             f'{[model.__name__ for model in get_image_models()]}')
-
         self.tip = self.image.name
         super().save(*args, **kwargs)
 
