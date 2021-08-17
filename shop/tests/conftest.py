@@ -81,3 +81,7 @@ def multi_client(api_client, authenticated_api_client):
             raise ValueError(f'Unhandled value: {client_type} ({type(client_type).__name__})')
 
     return _multi_client
+
+
+class ParametrizeParam(Enum):
+    SKIP = auto()
