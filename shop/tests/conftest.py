@@ -19,6 +19,7 @@ register(OrderItemFactory)
 register(ProductMaterialFactory)
 
 nonexistent_pk = 0
+existent_pk = 1
 
 
 @pytest.fixture(scope='session')

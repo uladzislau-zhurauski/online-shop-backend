@@ -4,7 +4,7 @@ from rest_framework import status
 
 from shop.models import Feedback
 from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer
-from shop.tests.conftest import nonexistent_pk, ClientType
+from shop.tests.conftest import nonexistent_pk, ClientType, existent_pk
 
 
 @pytest.mark.django_db
@@ -23,9 +23,9 @@ class TestFeedbackViews:
         (ClientType.AUTH_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
         (ClientType.AUTH_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
         (ClientType.AUTH_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, 1, 'title', 'content', status.HTTP_201_CREATED),
+        (ClientType.AUTH_CLIENT, existent_pk, None, 'content', status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, existent_pk, 'title', None, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, existent_pk, 'title', 'content', status.HTTP_201_CREATED),
     ])
     def test_post_feedback(self, client_type, feedback_product, title, content, status_code, multi_client):
         url = reverse('feedback-list')
@@ -67,16 +67,16 @@ class TestFeedbackViews:
             (ClientType.ADMIN_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
             (ClientType.ADMIN_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
             (ClientType.ADMIN_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, 1, 'title', 'content', status.HTTP_200_OK),
+            (ClientType.ADMIN_CLIENT, existent_pk, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, existent_pk, 'title', None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, existent_pk, 'title', 'content', status.HTTP_200_OK),
             (ClientType.AUTHOR_CLIENT, None, None, None, status.HTTP_400_BAD_REQUEST),
             (ClientType.AUTHOR_CLIENT, None, None, 'content', status.HTTP_400_BAD_REQUEST),
             (ClientType.AUTHOR_CLIENT, None, 'title', 'content', status.HTTP_400_BAD_REQUEST),
             (ClientType.AUTHOR_CLIENT, nonexistent_pk, 'title', 'content', status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, 1, None, 'content', status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, 1, 'title', None, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, 1, 'title', 'content', status.HTTP_200_OK),
+            (ClientType.AUTHOR_CLIENT, existent_pk, None, 'content', status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, existent_pk, 'title', None, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, existent_pk, 'title', 'content', status.HTTP_200_OK),
         ])
     def test_put_feedback(self, client_type, status_code, feedback_product, title, content, multi_client):
         moderated_feedback = Feedback.moderated_feedback.first()
