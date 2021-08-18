@@ -1,17 +1,17 @@
-from functools import wraps
-
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
-from shop.permissions import IsOwnerOrAdmin
+from shop.permissions import IsOwnerOrAdmin, check_permissions
 from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer, FeedbackInputSerializer
 
 
 class FeedbackList(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
     def get(cls, request):
@@ -29,19 +29,9 @@ class FeedbackList(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-def check_permissions(get_object_func):
-    def check_permissions_decorator(http_method):
-        @wraps(http_method)
-        def wrapper(self, *method_args, **method_kwargs):
-            request, pk = method_args[0], method_kwargs['pk']
-            self.check_object_permissions(request, get_object_func(pk))
-            return http_method(self, *method_args, **method_kwargs)
-        return wrapper
-    return check_permissions_decorator
-
-
 class FeedbackDetail(APIView):
     permission_classes = [IsOwnerOrAdmin]
+    parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
     def get(cls, request, pk):

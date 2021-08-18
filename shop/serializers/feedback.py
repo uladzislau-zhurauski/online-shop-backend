@@ -1,10 +1,13 @@
 from rest_framework import serializers
 
-from shop.models import Feedback, Image
+from shop.models import Feedback
+from shop.serializers.image import ImageDetailSerializer
+from shop.serializers.product import ProductDetailSerializer
 
 
 class FeedbackListSerializer(serializers.ModelSerializer):
-    images = serializers.PrimaryKeyRelatedField(many=True, queryset=Image.objects.all())
+    product = ProductDetailSerializer()
+    images = ImageDetailSerializer(many=True)
 
     class Meta:
         model = Feedback
@@ -12,7 +15,8 @@ class FeedbackListSerializer(serializers.ModelSerializer):
 
 
 class FeedbackDetailSerializer(serializers.ModelSerializer):
-    images = serializers.PrimaryKeyRelatedField(many=True, queryset=Image.objects.all())
+    product = ProductDetailSerializer()
+    images = ImageDetailSerializer(many=True)
 
     class Meta:
         model = Feedback
@@ -20,6 +24,8 @@ class FeedbackDetailSerializer(serializers.ModelSerializer):
 
 
 class FeedbackInputSerializer(serializers.ModelSerializer):
+    images = serializers.ListField(child=serializers.ImageField(), required=False)
+
     class Meta:
         model = Feedback
-        fields = ('product', 'title', 'content')
+        fields = ('product', 'title', 'content', 'images')
