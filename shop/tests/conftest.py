@@ -3,12 +3,11 @@ import tempfile
 from enum import Enum, auto
 
 import pytest
-from django.contrib.contenttypes.models import ContentType
 from pytest_factoryboy import register
 from PIL import Image as PillowImage
 
 from shop.tests.factories import ProductFactory, CategoryFactory, FeedbackFactory, UserFactory, AddressFactory, \
-    ImageFactory, OrderFactory, OrderItemFactory, ProductMaterialFactory
+    ProductImageFactory, FeedbackImageFactory, OrderFactory, OrderItemFactory, ProductMaterialFactory
 
 # register(EntityFactory) gives 'entity_factory' and 'entity' fixtures with function scope
 register(ProductFactory)
@@ -16,7 +15,8 @@ register(CategoryFactory)
 register(FeedbackFactory)
 register(UserFactory)
 register(AddressFactory)
-register(ImageFactory)
+register(ProductImageFactory)
+register(FeedbackImageFactory)
 register(OrderFactory)
 register(OrderItemFactory)
 register(ProductMaterialFactory)
@@ -46,8 +46,9 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
             ProductMaterialFactory()
             OrderFactory()
             OrderItemFactory()
-            ImageFactory(object_id=product.pk, content_type=ContentType.objects.get_for_model(product))
-            ImageFactory(object_id=feedback.pk, content_type=ContentType.objects.get_for_model(feedback))
+            for _ in range(3):
+                ProductImageFactory(content_object=product)
+                FeedbackImageFactory(content_object=feedback)
 
 
 @pytest.fixture

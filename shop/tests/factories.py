@@ -1,4 +1,5 @@
 import factory
+from django.contrib.contenttypes.models import ContentType
 from faker import Factory as FakerFactory
 from django.conf import settings
 
@@ -77,12 +78,26 @@ class FeedbackFactory(factory.django.DjangoModelFactory):
 
 class ImageFactory(factory.django.DjangoModelFactory):
     image = factory.django.ImageField(filename=faker.file_name(category='image'))
-    object_id = factory.LazyAttribute(lambda x: faker.random_int(min=1))
+    object_id = factory.SelfAttribute('content_object.id')
+    content_type = factory.LazyAttribute(lambda o: ContentType.objects.get_for_model(o.content_object))
+
+    class Meta:
+        exclude = ['content_object']
+        abstract = True
+
+
+class ProductImageFactory(ImageFactory):
+    content_object = factory.SubFactory(ProductFactory)
 
     class Meta:
         model = 'shop.Image'
 
-    content_type = None
+
+class FeedbackImageFactory(ImageFactory):
+    content_object = factory.SubFactory(FeedbackFactory)
+
+    class Meta:
+        model = 'shop.Image'
 
 
 class OrderFactory(factory.django.DjangoModelFactory):
