@@ -1,8 +1,11 @@
+import io
+import tempfile
 from enum import Enum, auto
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from pytest_factoryboy import register
+from PIL import Image as PillowImage
 
 from shop.tests.factories import ProductFactory, CategoryFactory, FeedbackFactory, UserFactory, AddressFactory, \
     ImageFactory, OrderFactory, OrderItemFactory, ProductMaterialFactory
@@ -29,6 +32,7 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
         for _ in range(5):
             feedback = FeedbackFactory(is_moderated=True)
             FeedbackFactory()
+            FeedbackFactory(author=UserFactory(is_staff=True))
 
             CategoryFactory(subcategory=True)
 
@@ -84,5 +88,34 @@ def multi_client(api_client, authenticated_api_client):
     return _multi_client
 
 
-class ParametrizeParam(Enum):
-    SKIP = auto()
+@pytest.fixture
+def get_in_file_system_image_file():
+    pillow_image = PillowImage.new('RGB', (100, 100))
+    temp_file = tempfile.NamedTemporaryFile(suffix='.jpg')
+    pillow_image.save(temp_file)
+    temp_file.seek(0)
+    yield temp_file
+    temp_file.close()
+
+
+@pytest.fixture
+def get_in_memory_image_file():
+    pillow_image = PillowImage.new('RGB', (100, 100))
+    temp_buffer = io.BytesIO()
+    temp_buffer.name = 'image.jpg'
+    pillow_image.save(temp_buffer)
+    temp_buffer.seek(0)
+    yield temp_buffer
+    temp_buffer.close()
+
+
+@pytest.fixture
+def get_in_memory_file():
+    temp_buffer = io.BytesIO(b'some_binary_data')
+    yield temp_buffer
+    temp_buffer.close()
+
+
+class Arg(Enum):
+    CORRECT = auto()
+    INCORRECT = auto()

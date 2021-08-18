@@ -76,7 +76,7 @@ class FeedbackFactory(factory.django.DjangoModelFactory):
 
 
 class ImageFactory(factory.django.DjangoModelFactory):
-    image = factory.LazyAttribute(lambda x: faker.file_name(category='image'))
+    image = factory.django.ImageField(filename=faker.file_name(category='image'))
     object_id = factory.LazyAttribute(lambda x: faker.random_int(min=1))
 
     class Meta:
