@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from shop.views.image import ImageList, ImageDetail
+from shop.views.image import ImageView
 from shop.views.product import ProductList, ProductDetail
 from shop.views.feedback import FeedbackList, FeedbackDetail
 
@@ -10,7 +10,7 @@ urlpatterns = [
     path('products/<int:pk>/', ProductDetail.as_view(), name='product-detail'),
     path('feedback/', FeedbackList.as_view(), name='feedback-list'),
     path('feedback/<int:pk>/', FeedbackDetail.as_view(), name='feedback-detail'),
-    path('images/', ImageList.as_view(), name='image-list'),
-    path('images/<int:pk>/', ImageDetail.as_view(), name='image-detail'),
+    path('images/', ImageView.as_view(), name='image-list'),
+    path('images/<int:pk>/', ImageView.as_view(), name='image-detail'),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

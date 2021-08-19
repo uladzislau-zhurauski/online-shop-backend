@@ -8,14 +8,18 @@ from shop.controllers.image import ImageController
 from shop.serializers.image import ImageListSerializer, ImageInputSerializer, ImageDetailSerializer
 
 
-class ImageList(APIView):
+class ImageView(APIView):
     permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
-    def get(cls, request):
-        images = ImageController.get_image_list()
-        data = ImageListSerializer(instance=images, many=True).data
+    def get(cls, request, pk=None):
+        if pk is None:
+            images = ImageController.get_image_list()
+            data = ImageListSerializer(instance=images, many=True).data
+        else:
+            image = ImageController.get_image(pk)
+            data = ImageDetailSerializer(instance=image).data
 
         return Response(data, status.HTTP_200_OK)
 
@@ -26,18 +30,6 @@ class ImageList(APIView):
         ImageController.create_image(**serializer.validated_data)
 
         return Response(status=status.HTTP_201_CREATED)
-
-
-class ImageDetail(APIView):
-    permission_classes = [IsAdminUser]
-    parser_classes = [MultiPartParser, FormParser]
-
-    @classmethod
-    def get(cls, request, pk):
-        image = ImageController.get_image(pk)
-        data = ImageDetailSerializer(instance=image).data
-
-        return Response(data, status.HTTP_200_OK)
 
     @classmethod
     def put(cls, request, pk):
