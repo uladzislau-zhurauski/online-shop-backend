@@ -32,6 +32,7 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
         for _ in range(5):
             feedback = FeedbackFactory(is_moderated=True)
             FeedbackFactory()
+            FeedbackFactory(author=UserFactory(is_staff=True))
 
             CategoryFactory(subcategory=True)
 
