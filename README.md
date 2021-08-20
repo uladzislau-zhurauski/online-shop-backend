@@ -93,7 +93,7 @@ On Linux: `source venv/bin/activate`
 
 ### Prerequisites
 1. You have fully completed [workflow example](#workflow-example).
-1. You are in the root of the project and have activated virtual env as described in [Step 2](#step-2:-cloning-the-project,-creating-a-virtual-environment-&-installing-necessary-python-packages) of workflow example.
+1. You are in the root of the project and have activated virtual env as described in [Step 2](#step-2-cloning-the-project-creating-a-virtual-environment--installing-necessary-python-packages) of workflow example.
 
 ### Step 1: Run tests
 1. The tests are written with `pytest`, so all the options of [this testing tool](https://docs.pytest.org/en/stable/) are available. To just run all tests, type `pytest`. You can check out other options [here](https://docs.pytest.org/en/stable/usage.html#specifying-tests-selecting-tests).
