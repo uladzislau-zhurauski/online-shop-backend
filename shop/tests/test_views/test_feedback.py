@@ -126,3 +126,20 @@ class TestFeedbackViews:
         response = authenticated_api_client(is_admin=True).delete(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.parametrize(
+        'client_type, status_code', [
+            (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, status.HTTP_204_NO_CONTENT),
+            (ClientType.AUTHOR_CLIENT, status.HTTP_204_NO_CONTENT),
+        ]
+    )
+    @pytest.mark.parametrize('has_images', [True, False])
+    def test_delete_feedback_images(self, client_type, status_code, has_images, multi_client):
+        moderated_feedback = Feedback.moderated_feedback.filter(images__isnull=has_images).first()
+        url = reverse('feedback-detail-delete-images', kwargs={'pk': moderated_feedback.pk})
+        user = moderated_feedback.author if client_type is ClientType.AUTHOR_CLIENT else None
+        response = multi_client(client_type, user).get(url)
+
+        assert response.status_code == status_code
