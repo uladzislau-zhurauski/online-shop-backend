@@ -39,3 +39,7 @@ class FeedbackController:
         FeedbackDAL.delete_feedback(cls.get_feedback(feedback_pk))
 
         return
+
+    @classmethod
+    def delete_feedback_images(cls, feedback_pk):
+        FeedbackDAL.delete_images(cls.get_feedback(feedback_pk))

@@ -53,3 +53,13 @@ class FeedbackDetail(APIView):
         FeedbackController.delete_feedback(pk)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FeedbackImagesRemover(APIView):
+    permission_classes = [IsOwnerOrAdmin]
+
+    @check_permissions(FeedbackController.get_feedback)
+    def get(self, request, pk):
+        FeedbackController.delete_feedback_images(pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

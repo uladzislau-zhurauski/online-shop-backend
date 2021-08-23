@@ -32,5 +32,9 @@ class FeedbackDAL:
         return feedback.delete()
 
     @classmethod
+    def delete_images(cls, feedback):
+        [image.delete() for image in feedback.images.all()]
+
+    @classmethod
     def create_images(cls, feedback_obj, images):
         [feedback_obj.images.create(image=image) for image in images]
