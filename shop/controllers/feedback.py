@@ -14,8 +14,7 @@ class FeedbackController:
         return feedback
 
     @classmethod
-    def create_feedback(cls, author, product, title, content, images=None, **_):  # images_to_delete arg is not
-        # needed here
+    def create_feedback(cls, author, product, title, content, images=None):
         FeedbackDAL.insert_feedback(author, product, title, content, images)
 
         # TODO Sending email to admin
