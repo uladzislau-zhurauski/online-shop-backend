@@ -1,3 +1,4 @@
+from shop.dal.image import ImageDAL
 from shop.models import Feedback
 
 
@@ -18,13 +19,16 @@ class FeedbackDAL:
         return Feedback.moderated_feedback.get(pk=feedback_pk)
 
     @classmethod
-    def update_feedback(cls, feedback, product, title, content, images=None):
+    def update_feedback(cls, feedback, product, title, content, images=None, images_to_delete=None):
         feedback.product = product
         feedback.title = title
         feedback.content = content
         feedback.is_moderated = False
         if images is not None:
             cls.create_images(feedback, images)
+        if images_to_delete is not None:
+            for image in images_to_delete:
+                ImageDAL.delete_image(image)
         return feedback.save()
 
     @classmethod
@@ -38,3 +42,11 @@ class FeedbackDAL:
     @classmethod
     def create_images(cls, feedback_obj, images):
         [feedback_obj.images.create(image=image) for image in images]
+
+    @classmethod
+    def get_all_feedback_images(cls, feedback_obj):
+        return feedback_obj.images.all()
+
+    @classmethod
+    def get_feedback_images_count(cls, feedback_obj):
+        return feedback_obj.images.count()
