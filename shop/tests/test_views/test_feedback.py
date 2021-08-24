@@ -7,8 +7,8 @@ from django.urls import reverse
 from rest_framework import status
 
 from shop.models import Feedback, Image
-from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer
-from shop.tests.conftest import nonexistent_pk, ClientType, existent_pk, Arg
+from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackListSerializer
+from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
 
 
 class ImagesToDelete(Enum):

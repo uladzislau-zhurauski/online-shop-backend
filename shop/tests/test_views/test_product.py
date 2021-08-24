@@ -3,8 +3,8 @@ from django.db.models import Count
 from django.urls import reverse
 from rest_framework import status
 
-from shop.models import Product, Category
-from shop.serializers.product import ProductListSerializer, ProductDetailSerializer
+from shop.models import Category, Product
+from shop.serializers.product import ProductDetailSerializer, ProductListSerializer
 from shop.tests.conftest import nonexistent_pk
 
 

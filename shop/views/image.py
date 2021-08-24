@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.image import ImageController
-from shop.serializers.image import ImageListSerializer, ImageInputSerializer, ImageDetailSerializer
+from shop.serializers.image import ImageDetailSerializer, ImageInputSerializer, ImageListSerializer
 
 
 class ImageView(APIView):

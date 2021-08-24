@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from shop.models import User, Category, Product, Address, Feedback, Image, Order, OrderItem, ProductMaterial
+from shop.models import Address, Category, Feedback, Image, Order, OrderItem, Product, ProductMaterial, User
 
 admin.site.register(User, UserAdmin)
 

@@ -3,9 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from shop.models import Image, get_image_models, Order
-from shop.serializers.image import ImageListSerializer, ImageDetailSerializer
-from shop.tests.conftest import nonexistent_pk, ClientType, existent_pk, Arg
+from shop.models import Image, Order, get_image_models
+from shop.serializers.image import ImageDetailSerializer, ImageListSerializer
+from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
 
 
 @pytest.fixture

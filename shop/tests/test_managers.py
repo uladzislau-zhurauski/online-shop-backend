@@ -1,6 +1,6 @@
 import pytest
 
-from shop.models import Product, Feedback
+from shop.models import Feedback, Product
 
 
 @pytest.mark.django_db

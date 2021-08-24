@@ -1,8 +1,8 @@
-from django.urls import path, include
+from django.urls import include, path
 
+from shop.views.feedback import FeedbackDetail, FeedbackImagesRemover, FeedbackList
 from shop.views.image import ImageView
-from shop.views.product import ProductList, ProductDetail
-from shop.views.feedback import FeedbackList, FeedbackDetail, FeedbackImagesRemover
+from shop.views.product import ProductDetail, ProductList
 
 urlpatterns = [
     path('products/', ProductList.as_view(), name='product-list'),

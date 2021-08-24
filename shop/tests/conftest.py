@@ -3,11 +3,11 @@ import tempfile
 from enum import Enum, auto
 
 import pytest
-from pytest_factoryboy import register
 from PIL import Image as PillowImage
+from pytest_factoryboy import register
 
-from shop.tests.factories import ProductFactory, CategoryFactory, FeedbackFactory, UserFactory, AddressFactory, \
-    ProductImageFactory, FeedbackImageFactory, OrderFactory, OrderItemFactory, ProductMaterialFactory
+from shop.tests.factories import AddressFactory, CategoryFactory, FeedbackFactory, FeedbackImageFactory, OrderFactory, \
+    OrderItemFactory, ProductFactory, ProductImageFactory, ProductMaterialFactory, UserFactory
 
 # register(EntityFactory) gives 'entity_factory' and 'entity' fixtures with function scope
 register(ProductFactory)

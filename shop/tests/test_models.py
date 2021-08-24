@@ -1,8 +1,8 @@
 import pytest
 from django.contrib.contenttypes.models import ContentType
 
-from shop.models import Category, Product, ProductMaterial, Feedback, Order, OrderItem, Image, image_directory_path, \
-    content_type_choices, Address
+from shop.models import Address, Category, Feedback, Image, Order, OrderItem, Product, ProductMaterial, \
+    content_type_choices, image_directory_path
 
 
 @pytest.mark.django_db

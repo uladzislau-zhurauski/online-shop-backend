@@ -1,7 +1,7 @@
 import factory
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from faker import Factory as FakerFactory
-from django.conf import settings
 
 faker = FakerFactory.create()
 

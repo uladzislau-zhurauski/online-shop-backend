@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.product import ProductController
-from shop.serializers.product import ProductListSerializer, ProductDetailSerializer
+from shop.serializers.product import ProductDetailSerializer, ProductListSerializer
 
 
 class ProductList(APIView):

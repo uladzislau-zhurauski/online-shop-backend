@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
 from shop.permissions import IsOwnerOrAdmin, check_permissions
-from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSerializer, FeedbackInputSerializer
+from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackInputSerializer, FeedbackListSerializer
 
 
 class FeedbackList(APIView):
