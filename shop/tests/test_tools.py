@@ -1,6 +1,6 @@
 import pytest
 
-from shop.tools import is_all_elements_exist_in_list
+from shop.tools import are_all_elements_in_list
 
 
 @pytest.mark.parametrize('list_1, list_2, expected', [
@@ -13,4 +13,4 @@ from shop.tools import is_all_elements_exist_in_list
     pytest.param([], [], True, id='Two empty lists'),
 ])
 def test_existence_of_one_list_in_another(list_1: list, list_2: list, expected):
-    assert is_all_elements_exist_in_list(list_1, list_2) == expected
+    assert are_all_elements_in_list(list_1, list_2) == expected

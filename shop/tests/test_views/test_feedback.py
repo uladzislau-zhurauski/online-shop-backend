@@ -46,7 +46,6 @@ def get_images_to_delete():
         else:
             raise ValueError(f'Unhandled value: {variant} ({type(variant).__name__})')
 
-        print(f'\n{data.get("images_to_delete", "default")}\n')
         return data
 
     return _get_images_to_delete
@@ -175,7 +174,6 @@ class TestFeedbackViews:
         data = get_images_to_delete(data, moderated_feedback, images_to_delete)
         response = authenticated_api_client(is_admin=True).put(url, data=data)
 
-        print(response.data)
         assert response.status_code == status_code
 
     @pytest.mark.parametrize(
