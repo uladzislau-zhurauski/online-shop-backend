@@ -1,5 +1,4 @@
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +9,6 @@ from shop.serializers.image import ImageListSerializer, ImageInputSerializer, Im
 
 class ImageView(APIView):
     permission_classes = [IsAdminUser]
-    parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
     def get(cls, request, pk=None):

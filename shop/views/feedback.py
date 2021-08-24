@@ -1,5 +1,4 @@
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +10,6 @@ from shop.serializers.feedback import FeedbackListSerializer, FeedbackDetailSeri
 
 class FeedbackList(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
     def get(cls, request):
@@ -31,7 +29,6 @@ class FeedbackList(APIView):
 
 class FeedbackDetail(APIView):
     permission_classes = [IsOwnerOrAdmin]
-    parser_classes = [MultiPartParser, FormParser]
 
     @classmethod
     def get(cls, request, pk):
