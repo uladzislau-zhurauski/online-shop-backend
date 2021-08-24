@@ -1,6 +1,7 @@
 from django.http import Http404
 from rest_framework import serializers
 
+from shop.controllers.image import ImageController
 from shop.dal.feedback import FeedbackDAL
 from shop.models import Feedback
 from shop.tools import is_all_elements_exist_in_list
@@ -33,7 +34,8 @@ class FeedbackController:
     def update_feedback(cls, feedback_pk, product, title, content, images=None, images_to_delete=None):
         feedback = cls.get_feedback(feedback_pk)
         if images_to_delete is not None:
-            cls.validate_images_to_delete(feedback, images_to_delete)
+            cls.validate_images_pk_to_delete(feedback, images_to_delete)
+            images_to_delete = [ImageController.get_image(image_pk) for image_pk in images_to_delete]
         FeedbackDAL.update_feedback(feedback, product, title, content, images, images_to_delete)
 
         # TODO Sending email to admin
@@ -53,9 +55,10 @@ class FeedbackController:
         FeedbackDAL.delete_images(cls.get_feedback(feedback_pk))
 
     @classmethod
-    def validate_images_to_delete(cls, feedback, images_to_delete):
-        if len(images_to_delete) > FeedbackDAL.get_feedback_images_count(feedback):
+    def validate_images_pk_to_delete(cls, feedback, images_pk_to_delete):
+        if len(images_pk_to_delete) > FeedbackDAL.get_feedback_images_count(feedback):
             raise serializers.ValidationError({'images_to_delete': 'Too many images!'})
-        if not is_all_elements_exist_in_list(images_to_delete, FeedbackDAL.get_all_feedback_images(feedback)):
+        existing_images_pk = [obj.pk for obj in FeedbackDAL.get_all_feedback_images(feedback)]
+        if not is_all_elements_exist_in_list(images_pk_to_delete, existing_images_pk):
             raise serializers.ValidationError({'images_to_delete': 'Image with such pk doesn\'t belong to this '
-                                                                   'feedback!'})
+                                                                   'feedback or doesn\'t exist!'})
