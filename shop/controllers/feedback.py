@@ -55,8 +55,6 @@ class FeedbackController:
 
     @classmethod
     def validate_images_pk_to_delete(cls, feedback, images_pk_to_delete):
-        if len(images_pk_to_delete) > FeedbackDAL.get_feedback_images_count(feedback):
-            raise serializers.ValidationError({'images_to_delete': 'Too many images!'})
         existing_images_pk = [obj.pk for obj in FeedbackDAL.get_all_feedback_images(feedback)]
         if not are_all_elements_in_list(images_pk_to_delete, existing_images_pk):
             raise serializers.ValidationError({'images_to_delete': 'Image with such pk doesn\'t belong to this '

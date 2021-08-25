@@ -46,7 +46,3 @@ class FeedbackDAL:
     @classmethod
     def get_all_feedback_images(cls, feedback_obj):
         return feedback_obj.images.all()
-
-    @classmethod
-    def get_feedback_images_count(cls, feedback_obj):
-        return feedback_obj.images.count()
