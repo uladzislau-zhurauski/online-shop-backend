@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import BasePermission
 
 from shop.models import Feedback
-from shop.permissions import IsOwnerOrAdmin
+from shop.permissions import is_owner_or_admin_factory
 
 
 class FakeRequest:
@@ -24,18 +24,18 @@ class TestIsOwnerOrAdminPermission:
     def test_author_and_is_admin(self, is_admin, assert_permission):
         feedback = Feedback.objects.filter(author__is_staff=is_admin).first()
         request = FakeRequest(feedback.author)
-        assert_permission(IsOwnerOrAdmin(), request, feedback, True)
+        assert_permission(is_owner_or_admin_factory('author')(), request, feedback, True)
 
     def test_not_author_but_admin(self, assert_permission):
         staff_user = get_user_model().objects.filter(is_staff=True).first()
         request = FakeRequest(staff_user)
         feedback = Feedback.objects.exclude(author=staff_user).first()
 
-        assert_permission(IsOwnerOrAdmin(), request, feedback, True)
+        assert_permission(is_owner_or_admin_factory('author')(), request, feedback, True)
 
     def test_not_author_and_not_admin(self, assert_permission):
         feedback = Feedback.objects.first()
         not_author_not_admin_user = get_user_model().objects.exclude(pk=feedback.author.pk)\
             .exclude(is_staff=True).first()
         request = FakeRequest(not_author_not_admin_user)
-        assert_permission(IsOwnerOrAdmin(), request, feedback, False)
+        assert_permission(is_owner_or_admin_factory('author')(), request, feedback, False)

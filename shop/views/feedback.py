@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
-from shop.permissions import IsOwnerOrAdmin, check_permissions
+from shop.permissions import is_owner_or_admin_factory, check_permissions
 from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackInputSerializer, FeedbackListSerializer
 
 
@@ -29,7 +29,7 @@ class FeedbackList(APIView):
 
 
 class FeedbackDetail(APIView):
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [is_owner_or_admin_factory('author')]
 
     @classmethod
     def get(cls, request, pk):
@@ -54,7 +54,7 @@ class FeedbackDetail(APIView):
 
 
 class FeedbackImagesRemover(APIView):
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [is_owner_or_admin_factory('author')]
 
     @check_permissions(FeedbackController.get_feedback)
     def get(self, request, pk):
