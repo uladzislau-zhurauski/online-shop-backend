@@ -8,6 +8,7 @@ from pytest_factoryboy import register
 
 from shop.tests.factories import AddressFactory, CategoryFactory, FeedbackFactory, FeedbackImageFactory, OrderFactory, \
     OrderItemFactory, ProductFactory, ProductImageFactory, ProductMaterialFactory, UserFactory
+from shop.tools import create_unhandled_value_error
 
 # register(EntityFactory) gives 'entity_factory' and 'entity' fixtures with function scope
 register(ProductFactory)
@@ -85,7 +86,7 @@ def multi_client(api_client, authenticated_api_client):
         elif client_type is ClientType.ADMIN_CLIENT:
             return authenticated_api_client(is_admin=True, user=user)
         else:
-            raise ValueError(f'Unhandled value: {client_type} ({type(client_type).__name__})')
+            raise create_unhandled_value_error(client_type)
 
     return _multi_client
 

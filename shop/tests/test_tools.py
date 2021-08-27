@@ -1,6 +1,6 @@
 import pytest
 
-from shop.tools import are_all_elements_in_list
+from shop.tools import are_all_elements_in_list, create_unhandled_value_error
 
 
 @pytest.mark.parametrize('list_1, list_2, expected', [
@@ -14,3 +14,10 @@ from shop.tools import are_all_elements_in_list
 ])
 def test_existence_of_one_list_in_another(list_1: list, list_2: list, expected):
     assert are_all_elements_in_list(list_1, list_2) == expected
+
+
+def test_create_unhandled_value_error():
+    value = 'some_data'
+    actual_error = create_unhandled_value_error(value)
+    expected_error = ValueError(f'Unhandled value: {value} ({type(value).__name__})')
+    assert type(actual_error) is type(expected_error) and actual_error.args == expected_error.args

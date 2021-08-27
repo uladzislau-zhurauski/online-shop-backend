@@ -9,6 +9,7 @@ from rest_framework import status
 from shop.models import Feedback, Image
 from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackListSerializer
 from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
+from shop.tools import create_unhandled_value_error
 
 
 class ImagesToDelete(Enum):
@@ -44,7 +45,7 @@ def get_images_to_delete():
         elif variant is None:
             pass
         else:
-            raise ValueError(f'Unhandled value: {variant} ({type(variant).__name__})')
+            raise create_unhandled_value_error(variant)
 
         return data
 
