@@ -6,10 +6,10 @@ from django.db.models import Count
 from django.urls import reverse
 from rest_framework import status
 
+from shop.exceptions import UnhandledValueError
 from shop.models import Feedback, Image
 from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackListSerializer
 from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
-from shop.tools import create_unhandled_value_error
 
 
 class ImagesToDelete(Enum):
@@ -45,7 +45,7 @@ def get_images_to_delete():
         elif variant is None:
             pass
         else:
-            raise create_unhandled_value_error(variant)
+            raise UnhandledValueError(variant)
 
         return data
 
