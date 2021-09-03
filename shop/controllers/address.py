@@ -1,5 +1,4 @@
 from django.http import Http404
-from rest_framework import serializers
 
 from shop.dal.address import AddressDAL
 from shop.models import Address
