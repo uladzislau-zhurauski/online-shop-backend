@@ -1,8 +1,9 @@
 from django.urls import include, path
 
+from shop.views.address import AddressView
+from shop.views.category import CategoryView
 from shop.views.feedback import FeedbackDetail, FeedbackImagesRemover, FeedbackList
 from shop.views.image import ImageView
-from shop.views.address import AddressView
 from shop.views.product import ProductDetail, ProductList
 
 urlpatterns = [
@@ -16,5 +17,7 @@ urlpatterns = [
     path('images/<int:pk>/', ImageView.as_view(), name='image-detail'),
     path('addresses/', AddressView.as_view(), name='address-list'),
     path('addresses/<int:pk>/', AddressView.as_view(), name='address-detail'),
+    path('categories/', CategoryView.as_view(), name='category-list'),
+    path('categories/<int:pk>/', CategoryView.as_view(), name='category-detail'),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
