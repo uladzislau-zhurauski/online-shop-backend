@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
+from shop.exceptions import UnhandledValueError
 from shop.models import Image, Order, get_image_models
 from shop.serializers.image import ImageDetailSerializer, ImageListSerializer
 from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
@@ -18,7 +19,7 @@ def get_content_type():
         elif content_type is None:
             return ''
         else:
-            raise ValueError
+            raise UnhandledValueError(content_type)
     return _get_content_type
 
 
@@ -67,7 +68,7 @@ class TestImageViews:
             if status_code == status.HTTP_201_CREATED:
                 status_code = status.HTTP_200_OK
         else:
-            raise ValueError
+            raise UnhandledValueError(method_type)
 
         assert response.status_code == status_code
 
