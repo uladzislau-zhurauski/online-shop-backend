@@ -2,11 +2,11 @@ from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
 from shop.models import Category
-from shop.serializers.product import ProductDetailSerializer
+from shop.serializers.product import ProductOutputSerializerForCategory
 
 
 class CategoryOutputSerializer(serializers.ModelSerializer):
-    products = ProductDetailSerializer(many=True)
+    products = ProductOutputSerializerForCategory(many=True)
     child_categories = RecursiveField(allow_null=True, many=True)
 
     class Meta:

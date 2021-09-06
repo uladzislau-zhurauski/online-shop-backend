@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from shop.models import Category, Product
-from shop.serializers.product import ProductDetailSerializer, ProductListSerializer
+from shop.serializers.product import ProductOutputSerializer
 from shop.tests.conftest import nonexistent_pk
 
 
@@ -16,7 +16,7 @@ class TestProductViews:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == ProductListSerializer(products, many=True).data
+        assert response.data == ProductOutputSerializer(products, many=True).data
 
     def test_get_empty_product_list_by_category(self, api_client):
         category = Category.objects.filter(products=None).first()
@@ -34,7 +34,7 @@ class TestProductViews:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == ProductListSerializer(products, many=True).data
+        assert response.data == ProductOutputSerializer(products, many=True).data
 
     def test_get_product_with_nonexistent_pk(self, api_client):
         url = reverse('product-detail', kwargs={'pk': nonexistent_pk})
@@ -55,4 +55,4 @@ class TestProductViews:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == ProductDetailSerializer(instance=product).data
+        assert response.data == ProductOutputSerializer(instance=product).data

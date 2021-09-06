@@ -2,11 +2,11 @@ from rest_framework import serializers
 
 from shop.models import Feedback
 from shop.serializers.image import ImageDetailSerializer
-from shop.serializers.product import ProductDetailSerializer
+from shop.serializers.product import ProductOutputSerializer
 
 
 class FeedbackListSerializer(serializers.ModelSerializer):
-    product = ProductDetailSerializer()
+    product = ProductOutputSerializer()
     images = ImageDetailSerializer(many=True)
 
     class Meta:
@@ -15,7 +15,7 @@ class FeedbackListSerializer(serializers.ModelSerializer):
 
 
 class FeedbackDetailSerializer(serializers.ModelSerializer):
-    product = ProductDetailSerializer()
+    product = ProductOutputSerializer()
     images = ImageDetailSerializer(many=True)
 
     class Meta:
