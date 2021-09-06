@@ -9,6 +9,12 @@ class ProductMaterialOutputSerializer(serializers.ModelSerializer):
         fields = ('name', 'product')
 
 
+class ProductMaterialOutputSerializerForProduct(serializers.ModelSerializer):
+    class Meta:
+        model = ProductMaterial
+        fields = ('name', )
+
+
 class ProductMaterialInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductMaterial
