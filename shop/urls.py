@@ -5,6 +5,7 @@ from shop.views.category import CategoryView
 from shop.views.feedback import FeedbackDetail, FeedbackImagesRemover, FeedbackList
 from shop.views.image import ImageView
 from shop.views.product import ProductDetail, ProductList
+from shop.views.product_material import ProductMaterialView
 
 urlpatterns = [
     path('products/', ProductList.as_view(), name='product-list'),
@@ -19,5 +20,7 @@ urlpatterns = [
     path('addresses/<int:pk>/', AddressView.as_view(), name='address-detail'),
     path('categories/', CategoryView.as_view(), name='category-list'),
     path('categories/<int:pk>/', CategoryView.as_view(), name='category-detail'),
+    path('product-materials/', ProductMaterialView.as_view(), name='product-material-list'),
+    path('product-materials/<int:pk>/', ProductMaterialView.as_view(), name='product-material-detail'),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
