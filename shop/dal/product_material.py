@@ -7,7 +7,7 @@ class ProductMaterialDAL:
         return ProductMaterial.objects.create(name=name, product=product)
 
     @classmethod
-    def get_all_categories(cls):
+    def get_all_materials(cls):
         return ProductMaterial.objects.all()
 
     @classmethod

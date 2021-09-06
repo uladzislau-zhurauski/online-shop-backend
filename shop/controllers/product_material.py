@@ -7,7 +7,7 @@ from shop.models import ProductMaterial
 class ProductMaterialController:
     @classmethod
     def get_material_list(cls):
-        return ProductMaterialDAL.get_all_categories()
+        return ProductMaterialDAL.get_all_materials()
 
     @classmethod
     def create_material(cls, name, product):
