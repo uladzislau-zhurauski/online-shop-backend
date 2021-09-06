@@ -18,7 +18,7 @@ class TestCategoryViews:
     ])
     def test_get_category_list(self, client_type, status_code, multi_client):
         url = reverse('category-list')
-        response = multi_client(client_type, None).get(url)
+        response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
         if client_type == ClientType.ADMIN_CLIENT:
@@ -36,10 +36,10 @@ class TestCategoryViews:
         data['parent_category'] = existent_pk
         if method_type == 'post':
             url = reverse('category-list')
-            response = multi_client(client_type, None).post(url, data=data)
+            response = multi_client(client_type).post(url, data=data)
         elif method_type == 'put':
             url = reverse('category-detail', kwargs={'pk': Category.objects.first().pk})
-            response = multi_client(client_type, None).put(url, data=data)
+            response = multi_client(client_type).put(url, data=data)
             if status_code == status.HTTP_201_CREATED:
                 status_code = status.HTTP_200_OK
         else:
@@ -82,6 +82,6 @@ class TestCategoryViews:
     )
     def test_delete_category(self, client_type, status_code, category_pk, multi_client):
         url = reverse('category-detail', kwargs={'pk': category_pk})
-        response = multi_client(client_type, None).delete(url)
+        response = multi_client(client_type).delete(url)
 
         assert response.status_code == status_code
