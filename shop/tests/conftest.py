@@ -51,6 +51,7 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
             for _ in range(3):
                 ProductImageFactory(content_object=product)
                 FeedbackImageFactory(content_object=feedback)
+                ProductMaterialFactory(product=product)
 
 
 @pytest.fixture
