@@ -8,7 +8,7 @@ from rest_framework import status
 
 from shop.exceptions import UnhandledValueError
 from shop.models import Feedback, Image
-from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackListSerializer
+from shop.serializers.feedback import FeedbackOutputSerializer
 from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
 
 
@@ -60,7 +60,7 @@ class TestFeedbackViews:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == FeedbackListSerializer(instance=feedback_list, many=True).data
+        assert response.data == FeedbackOutputSerializer(instance=feedback_list, many=True).data
 
     @pytest.mark.parametrize('client_type, feedback_product, title, content, images, status_code', [
         (ClientType.NOT_AUTH_CLIENT, None, None, None, None, status.HTTP_403_FORBIDDEN),
@@ -108,7 +108,7 @@ class TestFeedbackViews:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == FeedbackDetailSerializer(instance=moderated_feedback).data
+        assert response.data == FeedbackOutputSerializer(instance=moderated_feedback).data
 
     @pytest.mark.parametrize(
         'client_type, feedback_product, title, content, images, status_code', [

@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
-from shop.permissions import is_owner_or_admin_factory, check_permissions
-from shop.serializers.feedback import FeedbackDetailSerializer, FeedbackInputSerializer, FeedbackListSerializer
+from shop.permissions import check_permissions, is_owner_or_admin_factory
+from shop.serializers.feedback import FeedbackInputSerializer, FeedbackOutputSerializer
 
 
 class FeedbackList(APIView):
@@ -14,7 +14,7 @@ class FeedbackList(APIView):
     @classmethod
     def get(cls, request):
         feedback = FeedbackController.get_feedback_list()
-        data = FeedbackListSerializer(instance=feedback, many=True).data
+        data = FeedbackOutputSerializer(instance=feedback, many=True).data
 
         return Response(data, status.HTTP_200_OK)
 
@@ -34,7 +34,7 @@ class FeedbackDetail(APIView):
     @classmethod
     def get(cls, request, pk):
         feedback = FeedbackController.get_feedback(pk)
-        data = FeedbackDetailSerializer(instance=feedback).data
+        data = FeedbackOutputSerializer(instance=feedback).data
 
         return Response(data, status.HTTP_200_OK)
 

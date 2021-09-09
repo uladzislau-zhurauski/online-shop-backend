@@ -1,11 +1,12 @@
 from rest_framework import serializers
 
 from shop.models import OrderItem
+from shop.serializers import DynamicFieldsModelSerializer
 from shop.serializers.order import OrderOutputSerializer
 from shop.serializers.product import ProductOutputSerializer
 
 
-class OrderItemOutputSerializer(serializers.ModelSerializer):
+class OrderItemOutputSerializer(DynamicFieldsModelSerializer):
     product = ProductOutputSerializer()
     order = OrderOutputSerializer()
 

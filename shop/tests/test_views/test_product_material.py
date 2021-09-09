@@ -5,7 +5,7 @@ from rest_framework import status
 
 from shop.exceptions import UnhandledValueError
 from shop.models import ProductMaterial
-from shop.serializers.product_material import ProductMaterialOutputSerializer
+from shop.serializers.product_material import MaterialOutputSerializer
 from shop.tests.conftest import ClientType, existent_pk, nonexistent_pk
 
 
@@ -23,7 +23,7 @@ class TestProductMaterialViews:
         assert response.status_code == status_code
         if client_type == ClientType.ADMIN_CLIENT:
             material_list = ProductMaterial.objects.all()
-            assert response.data == ProductMaterialOutputSerializer(instance=material_list, many=True).data
+            assert response.data == MaterialOutputSerializer(instance=material_list, many=True).data
 
     @pytest.mark.parametrize('client_type, status_code', [
         (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
@@ -70,7 +70,7 @@ class TestProductMaterialViews:
 
         assert response.status_code == status_code
         if client_type == ClientType.ADMIN_CLIENT:
-            assert response.data == ProductMaterialOutputSerializer(instance=material).data
+            assert response.data == MaterialOutputSerializer(instance=material).data
 
     @pytest.mark.parametrize(
         'client_type, material_pk, status_code', [

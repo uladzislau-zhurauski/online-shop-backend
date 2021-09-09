@@ -1,26 +1,22 @@
 from rest_framework import serializers
 
 from shop.models import Feedback
-from shop.serializers.image import ImageDetailSerializer
-from shop.serializers.product import ProductOutputSerializer
+from shop.serializers import DynamicFieldsModelSerializer
+from shop.serializers.image import ImageOutputSerializer
 
 
-class FeedbackListSerializer(serializers.ModelSerializer):
-    product = ProductOutputSerializer()
-    images = ImageDetailSerializer(many=True)
-
-    class Meta:
-        model = Feedback
-        fields = ('author', 'product', 'title', 'content', 'images')
-
-
-class FeedbackDetailSerializer(serializers.ModelSerializer):
-    product = ProductOutputSerializer()
-    images = ImageDetailSerializer(many=True)
+class FeedbackOutputSerializer(DynamicFieldsModelSerializer):
+    product = serializers.SerializerMethodField()
+    images = ImageOutputSerializer(many=True)
 
     class Meta:
         model = Feedback
         fields = ('author', 'product', 'title', 'content', 'images')
+
+    @staticmethod
+    def get_product(obj):
+        from shop.serializers.product import ProductOutputSerializer
+        return ProductOutputSerializer(obj.product).data
 
 
 class FeedbackInputSerializer(serializers.ModelSerializer):

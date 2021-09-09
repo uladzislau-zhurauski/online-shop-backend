@@ -1,15 +1,10 @@
 from rest_framework import serializers
 
 from shop.models import Image
+from shop.serializers import DynamicFieldsModelSerializer
 
 
-class ImageListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = ('image', 'tip', 'content_type', 'object_id')
-
-
-class ImageDetailSerializer(serializers.ModelSerializer):
+class ImageOutputSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Image
         fields = ('image', 'tip', 'content_type', 'object_id')

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from shop.controllers.address import AddressController
 from shop.permissions import check_permissions, is_owner_or_admin_factory
-from shop.serializers.address import AddressOutputSerializer, AddressInputSerializer
+from shop.serializers.address import AddressInputSerializer, AddressOutputSerializer
 
 
 class AddressView(APIView):

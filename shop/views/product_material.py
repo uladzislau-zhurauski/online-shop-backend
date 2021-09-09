@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.product_material import ProductMaterialController
-from shop.serializers.product_material import ProductMaterialInputSerializer, ProductMaterialOutputSerializer
+from shop.serializers.product_material import MaterialInputSerializer, MaterialOutputSerializer
 
 
 class ProductMaterialView(APIView):
@@ -14,16 +14,16 @@ class ProductMaterialView(APIView):
     def get(cls, request, pk=None):
         if pk is None:
             materials = ProductMaterialController.get_material_list()
-            data = ProductMaterialOutputSerializer(instance=materials, many=True).data
+            data = MaterialOutputSerializer(instance=materials, many=True).data
         else:
             material = ProductMaterialController.get_material(pk)
-            data = ProductMaterialOutputSerializer(instance=material).data
+            data = MaterialOutputSerializer(instance=material).data
 
         return Response(data, status.HTTP_200_OK)
 
     @classmethod
     def post(cls, request):
-        serializer = ProductMaterialInputSerializer(data=request.data)
+        serializer = MaterialInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         ProductMaterialController.create_material(**serializer.validated_data)
 
@@ -31,7 +31,7 @@ class ProductMaterialView(APIView):
 
     @classmethod
     def put(cls, request, pk):
-        serializer = ProductMaterialInputSerializer(data=request.data)
+        serializer = MaterialInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         ProductMaterialController.update_material(pk, **serializer.validated_data)
 

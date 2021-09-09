@@ -5,7 +5,7 @@ from rest_framework import status
 
 from shop.exceptions import UnhandledValueError
 from shop.models import Image, Order, get_image_models
-from shop.serializers.image import ImageDetailSerializer, ImageListSerializer
+from shop.serializers.image import ImageOutputSerializer
 from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
 
 
@@ -31,7 +31,7 @@ class TestImageViews:
         response = authenticated_api_client(is_admin=True).get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == ImageListSerializer(instance=image_list, many=True).data
+        assert response.data == ImageOutputSerializer(instance=image_list, many=True).data
 
     @pytest.mark.parametrize('client_type, image, content_type, object_id, status_code', [
         (ClientType.NOT_AUTH_CLIENT, None, None, None, status.HTTP_403_FORBIDDEN),
@@ -84,7 +84,7 @@ class TestImageViews:
         response = authenticated_api_client(is_admin=True).get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == ImageDetailSerializer(instance=image).data
+        assert response.data == ImageOutputSerializer(instance=image).data
 
     @pytest.mark.parametrize(
         'client_type, image_pk, status_code', [

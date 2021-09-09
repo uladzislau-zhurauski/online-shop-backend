@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.image import ImageController
-from shop.serializers.image import ImageDetailSerializer, ImageInputSerializer, ImageListSerializer
+from shop.serializers.image import ImageInputSerializer, ImageOutputSerializer
 
 
 class ImageView(APIView):
@@ -14,10 +14,10 @@ class ImageView(APIView):
     def get(cls, request, pk=None):
         if pk is None:
             images = ImageController.get_image_list()
-            data = ImageListSerializer(instance=images, many=True).data
+            data = ImageOutputSerializer(instance=images, many=True).data
         else:
             image = ImageController.get_image(pk)
-            data = ImageDetailSerializer(instance=image).data
+            data = ImageOutputSerializer(instance=image).data
 
         return Response(data, status.HTTP_200_OK)
 
