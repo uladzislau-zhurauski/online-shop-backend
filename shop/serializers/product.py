@@ -10,7 +10,7 @@ from shop.serializers.product_material import MaterialOutputSerializer
 class ProductOutputSerializer(DynamicFieldsModelSerializer):
     category = serializers.SerializerMethodField()
     materials = MaterialOutputSerializer(many=True, fields_to_remove=['product'])
-    images = ImageOutputSerializer(many=True)
+    images = ImageOutputSerializer(many=True, fields_to_remove=['content_object'])
     feedback = FeedbackOutputSerializer(many=True, fields_to_remove=['product'])
 
     class Meta:

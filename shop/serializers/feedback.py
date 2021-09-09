@@ -7,7 +7,7 @@ from shop.serializers.image import ImageOutputSerializer
 
 class FeedbackOutputSerializer(DynamicFieldsModelSerializer):
     product = serializers.SerializerMethodField()
-    images = ImageOutputSerializer(many=True)
+    images = ImageOutputSerializer(many=True, fields_to_remove=['content_object'])
 
     class Meta:
         model = Feedback
