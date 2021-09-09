@@ -1,6 +1,8 @@
+import importlib
+
 from rest_framework import serializers
 
-from shop.models import Feedback, Image, Product, get_image_models
+from shop.models import Image, get_image_models
 from shop.serializers import DynamicFieldsModelSerializer
 
 
@@ -13,6 +15,7 @@ class ImageOutputSerializer(DynamicFieldsModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        # Changing 'content_object' field name to corresponding image model name
         field_name = 'content_object'
         if field_name in self.fields:  # image serializer may be initialized without 'content_object' field
             content_object = representation[field_name]
@@ -27,14 +30,9 @@ class ImageOutputSerializer(DynamicFieldsModelSerializer):
     def get_content_object(instance):
         for image_model_class in get_image_models():
             if isinstance(instance.content_object, image_model_class):
-                if image_model_class == Product:
-                    from shop.serializers.product import ProductOutputSerializer
-                    serializer = ProductOutputSerializer(instance.content_object)
-                    return serializer.data
-                elif image_model_class == Feedback:
-                    from shop.serializers.feedback import FeedbackOutputSerializer
-                    serializer = FeedbackOutputSerializer(instance.content_object)
-                    return serializer.data
+                image_model_module = importlib.import_module(f'{__package__}.{image_model_class.__name__.lower()}')
+                image_model_serializer = getattr(image_model_module, f'{image_model_class.__name__}OutputSerializer')
+                return image_model_serializer(instance.content_object).data
         raise TypeError('Unexpected type of image object')
 
 
