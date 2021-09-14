@@ -1,3 +1,5 @@
+import types
+
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from rest_framework import serializers
@@ -13,11 +15,11 @@ class UserController:
         return UserDAL.get_all_users()
 
     @classmethod
-    def create_user(cls, user, username, is_staff, is_superuser, is_active, password, phone_number='', first_name='',
-                    last_name='', email=''):
-        is_staff, is_superuser, is_active = cls.compute_superuser_settings(user, is_staff, is_superuser, is_active)
-        UserDAL.insert_user(username, is_staff, is_superuser, is_active, password, phone_number, first_name, last_name,
-                            email)
+    def create_user(cls, requesting_user, username, is_staff, is_superuser, is_active, password, phone_number='',
+                    first_name='', last_name='', email=''):
+        settings = cls.compute_superuser_settings(requesting_user, is_staff, is_superuser, is_active)
+        UserDAL.insert_user(username, settings.is_staff, settings.is_superuser, settings.is_active, password,
+                            phone_number, first_name, last_name, email)
 
     @classmethod
     def get_user(cls, user_pk):
@@ -27,11 +29,11 @@ class UserController:
             raise Http404
 
     @classmethod
-    def update_user(cls, user_pk, user, username, is_staff, is_superuser, is_active, password, phone_number='',
-                    first_name='', last_name='', email=''):
-        is_staff, is_superuser, is_active = cls.compute_superuser_settings(user, is_staff, is_superuser, is_active)
-        UserDAL.update_user(cls.get_user(user_pk), username, is_staff, is_superuser, is_active, password, phone_number,
-                            first_name, last_name, email)
+    def update_user(cls, user_pk, requesting_user, username, is_staff, is_superuser, is_active, password,
+                    phone_number='', first_name='', last_name='', email=''):
+        settings = cls.compute_superuser_settings(requesting_user, is_staff, is_superuser, is_active)
+        UserDAL.update_user(cls.get_user(user_pk), username, settings.is_staff, settings.is_superuser,
+                            settings.is_active, password, phone_number, first_name, last_name, email)
 
     @classmethod
     def delete_user(cls, user_pk):
@@ -58,7 +60,14 @@ class UserController:
         else:
             is_staff = is_superuser = False
             is_active = True
-        return is_staff, is_superuser, is_active
+
+        superuser_settings = types.SimpleNamespace(
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            is_active=is_active
+        )
+
+        return superuser_settings
 
     @classmethod
     def validate_superuser_settings(cls, is_staff, is_superuser):
