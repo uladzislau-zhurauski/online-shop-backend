@@ -21,4 +21,4 @@ class ProductOutputSerializer(DynamicFieldsModelSerializer):
     @staticmethod
     def get_category(obj):
         from shop.serializers.category import CategoryOutputSerializer
-        return CategoryOutputSerializer(obj.category).data
+        return CategoryOutputSerializer(obj.category, fields_to_remove=['products']).data

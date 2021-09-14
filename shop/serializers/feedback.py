@@ -6,6 +6,7 @@ from shop.serializers.image import ImageOutputSerializer
 
 
 class FeedbackOutputSerializer(DynamicFieldsModelSerializer):
+    author = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
     images = ImageOutputSerializer(many=True, fields_to_remove=['content_object'])
 
@@ -16,7 +17,12 @@ class FeedbackOutputSerializer(DynamicFieldsModelSerializer):
     @staticmethod
     def get_product(obj):
         from shop.serializers.product import ProductOutputSerializer
-        return ProductOutputSerializer(obj.product).data
+        return ProductOutputSerializer(obj.product, fields_to_remove=['feedback']).data
+
+    @staticmethod
+    def get_author(obj):
+        from shop.serializers.user import UserOutputSerializer
+        return UserOutputSerializer(obj.author).data
 
 
 class FeedbackInputSerializer(serializers.ModelSerializer):

@@ -23,11 +23,7 @@ class CategoryOutputSerializer(DynamicFieldsModelSerializer):
 
     @staticmethod
     def get_child_categories(obj):
-        if obj.child_categories:
-            return CategoryOutputSerializer(obj.child_categories, many=True,
-                                            fields_to_remove=['parent_category']).data
-        else:
-            return None
+        return CategoryOutputSerializer(obj.child_categories, many=True, fields_to_remove=['parent_category']).data
 
 
 class CategoryInputSerializer(serializers.ModelSerializer):

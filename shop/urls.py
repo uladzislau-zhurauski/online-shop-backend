@@ -8,6 +8,7 @@ from shop.views.order import OrderView
 from shop.views.order_item import OrderItemView
 from shop.views.product import ProductDetail, ProductList
 from shop.views.product_material import ProductMaterialView
+from shop.views.user import UserAddressesView, UserFeedbackView, UserOrdersView, UserView
 
 urlpatterns = [
     path('products/', ProductList.as_view(), name='product-list'),
@@ -28,5 +29,10 @@ urlpatterns = [
     path('orders/<int:pk>/', OrderView.as_view(), name='order-detail'),
     path('order-items/', OrderItemView.as_view(), name='order-item-list'),
     path('order-items/<int:pk>/', OrderItemView.as_view(), name='order-item-detail'),
+    path('users/', UserView.as_view(), name='user-list'),
+    path('users/<int:pk>/', UserView.as_view(), name='user-detail'),
+    path('users/<int:pk>/addresses/', UserAddressesView.as_view(), name='user-addresses'),
+    path('users/<int:pk>/feedback/', UserFeedbackView.as_view(), name='user-feedback'),
+    path('users/<int:pk>/orders/', UserOrdersView.as_view(), name='user-orders'),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

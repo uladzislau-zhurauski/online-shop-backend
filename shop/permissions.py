@@ -14,6 +14,11 @@ def is_owner_or_admin_factory(owner_field_name):
     return IsOwnerOrAdmin
 
 
+class IsUserOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj == request.user or request.user.is_staff
+
+
 def check_permissions(get_object_func):
     def check_permissions_decorator(http_method):
         @wraps(http_method)
