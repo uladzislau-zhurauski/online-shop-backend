@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import BasePermission
 
 from shop.models import Feedback
-from shop.permissions import is_owner_or_admin_factory
+from shop.permissions import IsUserOrAdmin, is_owner_or_admin_factory
 
 
 class FakeRequest:
@@ -39,3 +39,22 @@ class TestIsOwnerOrAdminPermission:
             .exclude(is_staff=True).first()
         request = FakeRequest(not_author_not_admin_user)
         assert_permission(is_owner_or_admin_factory('author')(), request, feedback, False)
+
+
+@pytest.mark.django_db
+class TestIsUserOrAdminPermission:
+    @pytest.mark.parametrize('is_staff', [True, False])
+    def test_not_user_and_is_admin(self, is_staff, assert_permission):
+        requesting_user = get_user_model().objects.filter(is_staff=is_staff).first()
+        request = FakeRequest(requesting_user)
+        user_to_retrieve = get_user_model().objects.exclude(id=requesting_user.id).first()
+
+        assert_permission(IsUserOrAdmin(), request, user_to_retrieve, is_staff)
+
+    @pytest.mark.parametrize('is_staff', [True, False])
+    def test_user_and_is_admin(self, is_staff, assert_permission):
+        requesting_user = get_user_model().objects.filter(is_staff=is_staff).first()
+        request = FakeRequest(requesting_user)
+        user_to_retrieve = requesting_user
+
+        assert_permission(IsUserOrAdmin(), request, user_to_retrieve, True)
