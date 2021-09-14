@@ -24,6 +24,8 @@ register(ProductMaterialFactory)
 
 nonexistent_pk = 0
 existent_pk = 1
+nonexistent_username = 'unique_username'
+existent_username = 'user0'
 
 
 @pytest.fixture(scope='session')
@@ -54,6 +56,7 @@ def django_db_setup(django_db_setup, django_db_blocker):  # NOQA
                 FeedbackImageFactory(content_object=feedback)
                 ProductMaterialFactory(product=product)
                 OrderFactory(user=user)
+                AddressFactory(user=user)
 
 
 @pytest.fixture
