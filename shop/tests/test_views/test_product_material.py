@@ -17,7 +17,7 @@ class TestProductMaterialViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_200_OK)
     ])
     def test_get_material_list(self, client_type, status_code, multi_client):
-        url = reverse('product-material-list')
+        url = reverse('material-list')
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -35,10 +35,10 @@ class TestProductMaterialViews:
         data = factory.build(dict, FACTORY_CLASS=product_material_factory)
         data['product'] = existent_pk
         if method_type == 'post':
-            url = reverse('product-material-list')
+            url = reverse('material-list')
             response = multi_client(client_type).post(url, data=data)
         elif method_type == 'put':
-            url = reverse('product-material-detail', kwargs={'pk': ProductMaterial.objects.first().pk})
+            url = reverse('material-detail', kwargs={'pk': ProductMaterial.objects.first().pk})
             response = multi_client(client_type).put(url, data=data)
             if status_code == status.HTTP_201_CREATED:
                 status_code = status.HTTP_200_OK
@@ -53,7 +53,7 @@ class TestProductMaterialViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)
     ])
     def test_get_material_with_nonexistent_pk(self, client_type, status_code, multi_client):
-        url = reverse('product-material-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('material-detail', kwargs={'pk': nonexistent_pk})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -65,7 +65,7 @@ class TestProductMaterialViews:
     ])
     def test_get_material(self, client_type, status_code, multi_client):
         material = ProductMaterial.objects.first()
-        url = reverse('product-material-detail', kwargs={'pk': material.pk})
+        url = reverse('material-detail', kwargs={'pk': material.pk})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -81,7 +81,7 @@ class TestProductMaterialViews:
         ]
     )
     def test_delete_material(self, client_type, status_code, material_pk, multi_client):
-        url = reverse('product-material-detail', kwargs={'pk': material_pk})
+        url = reverse('material-detail', kwargs={'pk': material_pk})
         response = multi_client(client_type).delete(url)
 
         assert response.status_code == status_code
