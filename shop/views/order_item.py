@@ -9,6 +9,7 @@ from shop.serializers.order_item import OrderItemInputSerializer, OrderItemOutpu
 
 class OrderItemView(APIView):
     permission_classes = [IsAdminUser]
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     @classmethod
     def get(cls, request, pk=None):

@@ -9,6 +9,7 @@ from shop.serializers.image import ImageInputSerializer, ImageOutputSerializer
 
 class ImageView(APIView):
     permission_classes = [IsAdminUser]
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     @classmethod
     def get(cls, request, pk=None):

@@ -10,6 +10,7 @@ from shop.serializers.order import OrderInputSerializer, OrderOutputSerializer
 
 class OrderView(APIView):
     permission_classes = [is_owner_or_admin_factory('user'), IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     def get(self, request, pk=None):
         if pk is None:

@@ -6,6 +6,8 @@ from shop.serializers.product import ProductOutputSerializer
 
 
 class ProductList(APIView):
+    http_method_names = ['get']
+
     @classmethod
     def get(cls, request, category_pk=None):
         products = ProductController.get_product_list(category_pk)
@@ -15,6 +17,8 @@ class ProductList(APIView):
 
 
 class ProductDetail(APIView):
+    http_method_names = ['get']
+
     @classmethod
     def get(cls, request, pk):
         product = ProductController.get_product(pk)

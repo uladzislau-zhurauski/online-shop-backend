@@ -58,6 +58,7 @@ class UserView(APIView):
 
 class UserAddressesView(APIView):
     permission_classes = [IsUserOrAdmin]
+    http_method_names = ['get']
 
     @check_permissions(UserController.get_user)
     def get(self, request, pk):
@@ -69,6 +70,7 @@ class UserAddressesView(APIView):
 
 class UserFeedbackView(APIView):
     permission_classes = [IsUserOrAdmin]
+    http_method_names = ['get']
 
     @check_permissions(UserController.get_user)
     def get(self, request, pk):
@@ -80,6 +82,7 @@ class UserFeedbackView(APIView):
 
 class UserOrdersView(APIView):
     permission_classes = [IsUserOrAdmin]
+    http_method_names = ['get']
 
     @check_permissions(UserController.get_user)
     def get(self, request, pk):

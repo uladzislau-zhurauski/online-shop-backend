@@ -10,6 +10,7 @@ from shop.serializers.feedback import FeedbackInputSerializer, FeedbackOutputSer
 
 class FeedbackList(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+    http_method_names = ['get', 'post']
 
     @classmethod
     def get(cls, request):
@@ -30,6 +31,7 @@ class FeedbackList(APIView):
 
 class FeedbackDetail(APIView):
     permission_classes = [is_owner_or_admin_factory('author')]
+    http_method_names = ['get', 'put', 'delete']
 
     @classmethod
     def get(cls, request, pk):
@@ -55,6 +57,7 @@ class FeedbackDetail(APIView):
 
 class FeedbackImagesRemover(APIView):
     permission_classes = [is_owner_or_admin_factory('author')]
+    http_method_names = ['get']
 
     @check_permissions(FeedbackController.get_feedback)
     def get(self, request, pk):

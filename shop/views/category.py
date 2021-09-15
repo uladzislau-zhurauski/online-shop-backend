@@ -9,6 +9,7 @@ from shop.serializers.category import CategoryInputSerializer, CategoryOutputSer
 
 class CategoryView(APIView):
     permission_classes = [IsAdminUser]
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     @classmethod
     def get(cls, request, pk=None):
