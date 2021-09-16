@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.address import AddressController
-from shop.permissions import check_permissions, is_owner_or_admin_factory
+from shop.permissions import check_object_permissions, is_owner_or_admin_factory
 from shop.serializers.address import AddressInputSerializer, AddressOutputSerializer
 
 
@@ -31,7 +31,7 @@ class AddressView(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
-    @check_permissions(AddressController.get_address)
+    @check_object_permissions(AddressController.get_address)
     def put(self, request, pk):
         serializer = AddressInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -39,7 +39,7 @@ class AddressView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    @check_permissions(AddressController.get_address)
+    @check_object_permissions(AddressController.get_address)
     def delete(self, request, pk):
         AddressController.delete_address(pk)
 

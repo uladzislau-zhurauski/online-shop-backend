@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.user import UserController
-from shop.permissions import IsUserOrAdmin, check_permissions
+from shop.permissions import IsUserOrAdmin, check_object_permissions
 from shop.serializers.address import AddressOutputSerializer
 from shop.serializers.feedback import FeedbackOutputSerializer
 from shop.serializers.order import OrderOutputSerializer
@@ -40,7 +40,7 @@ class UserView(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
-    @check_permissions(UserController.get_user)
+    @check_object_permissions(UserController.get_user)
     def put(self, request, pk):
         serializer = UserInputSerializer(data=request.data)
         UserController.check_username_field(pk, serializer)
@@ -49,7 +49,7 @@ class UserView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    @check_permissions(UserController.get_user)
+    @check_object_permissions(UserController.get_user)
     def delete(self, request, pk):
         UserController.delete_user(pk)
 
@@ -60,7 +60,7 @@ class UserAddressesView(APIView):
     permission_classes = [IsUserOrAdmin]
     http_method_names = ['get']
 
-    @check_permissions(UserController.get_user)
+    @check_object_permissions(UserController.get_user)
     def get(self, request, pk):
         user = UserController.get_user(pk)
         data = AddressOutputSerializer(instance=user.addresses.all(), many=True, fields_to_remove=['user']).data
@@ -72,7 +72,7 @@ class UserFeedbackView(APIView):
     permission_classes = [IsUserOrAdmin]
     http_method_names = ['get']
 
-    @check_permissions(UserController.get_user)
+    @check_object_permissions(UserController.get_user)
     def get(self, request, pk):
         user = UserController.get_user(pk)
         data = FeedbackOutputSerializer(instance=user.feedback.all(), many=True, fields_to_remove=['author']).data
@@ -84,7 +84,7 @@ class UserOrdersView(APIView):
     permission_classes = [IsUserOrAdmin]
     http_method_names = ['get']
 
-    @check_permissions(UserController.get_user)
+    @check_object_permissions(UserController.get_user)
     def get(self, request, pk):
         user = UserController.get_user(pk)
         data = OrderOutputSerializer(instance=user.orders.all(), many=True, fields_to_remove=['user']).data

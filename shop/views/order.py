@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.order import OrderController
-from shop.permissions import check_permissions, is_owner_or_admin_factory
+from shop.permissions import check_object_permissions, is_owner_or_admin_factory
 from shop.serializers.order import OrderInputSerializer, OrderOutputSerializer
 
 
@@ -31,7 +31,7 @@ class OrderView(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
-    @check_permissions(OrderController.get_order)
+    @check_object_permissions(OrderController.get_order)
     def put(self, request, pk):
         serializer = OrderInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -39,7 +39,7 @@ class OrderView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    @check_permissions(OrderController.get_order)
+    @check_object_permissions(OrderController.get_order)
     def delete(self, request, pk):
         OrderController.delete_order(pk)
 

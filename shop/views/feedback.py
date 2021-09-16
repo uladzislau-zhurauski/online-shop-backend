@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.feedback import FeedbackController
-from shop.permissions import check_permissions, is_owner_or_admin_factory
+from shop.permissions import check_object_permissions, is_owner_or_admin_factory
 from shop.serializers.feedback import FeedbackInputSerializer, FeedbackOutputSerializer
 
 
@@ -40,7 +40,7 @@ class FeedbackDetail(APIView):
 
         return Response(data, status.HTTP_200_OK)
 
-    @check_permissions(FeedbackController.get_feedback)
+    @check_object_permissions(FeedbackController.get_feedback)
     def put(self, request, pk):
         serializer = FeedbackInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -48,7 +48,7 @@ class FeedbackDetail(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    @check_permissions(FeedbackController.get_feedback)
+    @check_object_permissions(FeedbackController.get_feedback)
     def delete(self, request, pk):
         FeedbackController.delete_feedback(pk)
 
@@ -59,7 +59,7 @@ class FeedbackImagesRemover(APIView):
     permission_classes = [is_owner_or_admin_factory('author')]
     http_method_names = ['get']
 
-    @check_permissions(FeedbackController.get_feedback)
+    @check_object_permissions(FeedbackController.get_feedback)
     def get(self, request, pk):
         FeedbackController.delete_feedback_images(pk)
 

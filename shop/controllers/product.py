@@ -18,9 +18,9 @@ class ProductController:
             return ProductDAL.get_available_or_category_products(category_pk)
 
     @classmethod
-    def get_product(cls, product_pk, requesting_user_is_staff):
+    def get_product(cls, product_pk, is_staff):
         try:
-            if requesting_user_is_staff:
+            if is_staff:
                 return ProductDAL.get_any_product_by_pk(product_pk)
             else:
                 return ProductDAL.get_available_product_by_pk(product_pk)

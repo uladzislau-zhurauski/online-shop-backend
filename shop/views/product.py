@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.product import ProductController
-from shop.permissions import add_and_check_permissions
+from shop.permissions import check_new_global_permission
 from shop.serializers.product import ProductInputSerializer, ProductOutputSerializer
 
 
@@ -23,7 +23,7 @@ class ProductView(APIView):
 
         return Response(data, status.HTTP_200_OK)
 
-    @add_and_check_permissions(IsAdminUser)
+    @check_new_global_permission(IsAdminUser)
     def post(self, request):
         serializer = ProductInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -32,7 +32,7 @@ class ProductView(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
-    @add_and_check_permissions(IsAdminUser)
+    @check_new_global_permission(IsAdminUser)
     def put(self, request, pk):
         serializer = ProductInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -40,7 +40,7 @@ class ProductView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    @add_and_check_permissions(IsAdminUser)
+    @check_new_global_permission(IsAdminUser)
     def delete(self, request, pk):
         ProductController.delete_product(pk)
 
