@@ -28,3 +28,18 @@ def check_permissions(get_object_func):
             return http_method(self, *method_args, **method_kwargs)
         return wrapper
     return check_permissions_decorator
+
+
+def add_and_check_permissions(permission_class):
+    def check_permissions_decorator(http_method):
+        @wraps(http_method)
+        def wrapper(self, *method_args, **method_kwargs):
+            request = method_args[0]
+            self.permission_classes.append(permission_class)
+            try:
+                self.check_permissions(request)
+            finally:
+                self.permission_classes.remove(permission_class)
+            return http_method(self, *method_args, **method_kwargs)
+        return wrapper
+    return check_permissions_decorator

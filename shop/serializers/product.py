@@ -15,10 +15,22 @@ class ProductOutputSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('category', 'name', 'price', 'description', 'size', 'weight', 'stock', 'materials', 'images',
-                  'feedback')
+        fields = ('category', 'name', 'price', 'description', 'size', 'weight', 'stock', 'is_available', 'materials',
+                  'images', 'feedback')
 
     @staticmethod
     def get_category(obj):
         from shop.serializers.category import CategoryOutputSerializer
-        return CategoryOutputSerializer(obj.category, fields_to_remove=['products']).data
+        return CategoryOutputSerializer(obj.category,
+                                        fields_to_remove=['products', 'child_categories', 'parent_category']).data
+
+
+class ProductInputSerializer(DynamicFieldsModelSerializer):
+    materials = serializers.ListField(child=serializers.CharField(max_length=255), required=False)
+    images = serializers.ListField(child=serializers.ImageField(), required=False)
+    images_to_delete = serializers.ListField(child=serializers.IntegerField(min_value=0), required=False)
+
+    class Meta:
+        model = Product
+        fields = ('category', 'name', 'price', 'description', 'size', 'weight', 'stock', 'is_available', 'materials',
+                  'images', 'images_to_delete')
