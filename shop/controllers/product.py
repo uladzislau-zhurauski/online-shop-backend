@@ -28,16 +28,26 @@ class ProductController:
             raise Http404
 
     @classmethod
-    def create_product(cls, category, name, price, description, size, weight, stock, is_available=None, materials=None,
+    def create_product(cls, category, name, price, description, size, weight, stock, is_available, materials=None,
                        images=None):
         product = ProductDAL.insert_product(category, name, price, description, size, weight, stock, is_available)
         if materials is not None:
-            ProductDAL.create_materials(product, materials)
+            cls.add_materials_to_product(product, materials)
         if images is not None:
             ProductDAL.create_images(product, images)
 
     @classmethod
-    def update_product(cls, product_pk, category, name, price, description, size, weight, stock, is_available=None,
+    def add_materials_to_product(cls, product_obj, material_names):
+        existing_materials = {material.name: material for material in ProductMaterialDAL.get_all_materials()}
+        for material_name in material_names:
+            if material_name in existing_materials:
+                ProductMaterialDAL.add_products(existing_materials[material_name], [product_obj])
+            else:
+                new_material = ProductMaterialDAL.insert_material(material_name)
+                ProductMaterialDAL.add_products(new_material, [product_obj])
+
+    @classmethod
+    def update_product(cls, product_pk, category, name, price, description, size, weight, stock, is_available,
                        materials=None, images=None, images_to_delete=None):
         product_obj = cls.get_product(product_pk, True)
         cls.update_product_materials(product_obj, materials)
@@ -52,20 +62,22 @@ class ProductController:
         else:
             current_materials = {material.name: material for material in
                                  ProductDAL.get_all_product_materials(product_obj)}
-            cls.delete_unnecessary_materials(current_materials, new_materials)
+            cls.delete_unnecessary_materials(product_obj, current_materials, new_materials)
             cls.add_necessary_materials(product_obj, current_materials, new_materials)
 
     @classmethod
-    def delete_unnecessary_materials(cls, current_materials, new_materials):
+    def delete_unnecessary_materials(cls, product_obj, current_materials, new_materials):
         for current_material_name in current_materials:
             if current_material_name not in new_materials:
-                ProductMaterialDAL.delete_material(current_materials[current_material_name])
+                ProductDAL.remove_product_material(product_obj, current_materials[current_material_name])
 
     @classmethod
     def add_necessary_materials(cls, product_obj, current_materials, new_materials):
+        materials_to_add = []
         for new_material in new_materials:
             if new_material not in current_materials:
-                ProductMaterialDAL.insert_material(new_material, product_obj)
+                materials_to_add.append(new_material)
+        cls.add_materials_to_product(product_obj, materials_to_add)
 
     @classmethod
     def process_images_to_delete(cls, product_obj, images_pk_to_delete):

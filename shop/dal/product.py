@@ -1,5 +1,4 @@
 from shop.dal.image import ImageDAL
-from shop.dal.product_material import ProductMaterialDAL
 from shop.models import Product
 
 
@@ -36,10 +35,6 @@ class ProductDAL:
         [product_obj.images.create(image=image) for image in images]
 
     @classmethod
-    def create_materials(cls, product_obj, materials):
-        [product_obj.materials.create(name=material_name) for material_name in materials]
-
-    @classmethod
     def update_product(cls, product_obj, category, name, price, description, size, weight, stock, is_available):
         product_obj.category = category
         product_obj.name = name
@@ -61,7 +56,7 @@ class ProductDAL:
 
     @classmethod
     def delete_all_product_materials(cls, product_obj):
-        [ProductMaterialDAL.delete_material(material) for material in product_obj.materials.all()]
+        product_obj.materials.clear()
 
     @classmethod
     def get_all_product_materials(cls, product_obj):
@@ -70,3 +65,7 @@ class ProductDAL:
     @classmethod
     def delete_product(cls, product):
         return product.delete()
+
+    @classmethod
+    def remove_product_material(cls, product_obj, material):
+        product_obj.materials.remove(material)
