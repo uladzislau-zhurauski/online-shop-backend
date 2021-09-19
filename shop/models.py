@@ -80,6 +80,16 @@ class Image(models.Model):
         super().save(*args, **kwargs)
 
 
+class ProductMaterial(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ('name', )
+
+    def __str__(self):
+        return f'Product material \'{self.name}\''
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', db_column='category_id')
     name = models.CharField(max_length=255, db_index=True)
@@ -92,6 +102,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    materials = models.ManyToManyField(ProductMaterial, related_name='products')
     images = GenericRelation(Image)
 
     objects = models.Manager()
@@ -102,17 +113,6 @@ class Product(models.Model):
 
     def __str__(self):
         return f'Product {self.name} of {self.category}'
-
-
-class ProductMaterial(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='materials', db_column='product_id')
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        ordering = ('name', )
-
-    def __str__(self):
-        return f'Product material {self.name} of product {self.product.name}'
 
 
 class Feedback(models.Model):

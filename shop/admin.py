@@ -33,9 +33,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductMaterial)
 class ProductMaterialAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product')
+    list_display = ('name', )
     search_fields = ('name', )
-    raw_id_fields = ('product', )
 
 
 @admin.register(Address)
