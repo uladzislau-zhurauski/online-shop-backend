@@ -127,4 +127,11 @@ class ProductMaterialFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'shop.ProductMaterial'
 
-    product = factory.SubFactory(ProductFactory)
+    @factory.post_generation
+    def products(self, create, extracted):
+        if not create:
+            # Simple build
+            return
+        if extracted:
+            # A list of products were passed in
+            self.products.add(*extracted)

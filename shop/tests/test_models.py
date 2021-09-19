@@ -25,7 +25,7 @@ class TestModelStr:
 
     def test_product_material_str(self):
         material = ProductMaterial.objects.first()
-        assert str(material) == f'Product material {material.name} of product {material.product.name}'
+        assert str(material) == f'Product material \'{material.name}\''
 
     def test_feedback_str(self):
         feedback = Feedback.objects.first()
