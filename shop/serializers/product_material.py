@@ -5,19 +5,19 @@ from shop.serializers import DynamicFieldsModelSerializer
 
 
 class MaterialOutputSerializer(DynamicFieldsModelSerializer):
-    product = serializers.SerializerMethodField()
+    products = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductMaterial
-        fields = ('name', 'product')
+        fields = ('name', 'products')
 
     @staticmethod
-    def get_product(obj):
+    def get_products(obj):
         from shop.serializers.product import ProductOutputSerializer
-        return ProductOutputSerializer(obj.product).data
+        return ProductOutputSerializer(obj.products.all(), many=True).data
 
 
-class MaterialInputSerializer(serializers.ModelSerializer):
+class MaterialInputSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = ProductMaterial
-        fields = ('name', 'product')
+        fields = ('name', 'products')

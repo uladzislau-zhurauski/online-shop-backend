@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shop.models import Product
+from shop.models import Product, ProductMaterial
 from shop.serializers import DynamicFieldsModelSerializer
 from shop.serializers.feedback import FeedbackOutputSerializer
 from shop.serializers.image import ImageOutputSerializer
@@ -9,7 +9,7 @@ from shop.serializers.product_material import MaterialOutputSerializer
 
 class ProductOutputSerializer(DynamicFieldsModelSerializer):
     category = serializers.SerializerMethodField()
-    materials = MaterialOutputSerializer(many=True, fields_to_remove=['product'])
+    materials = MaterialOutputSerializer(many=True, fields_to_remove=['products'])
     images = ImageOutputSerializer(many=True, fields_to_remove=['content_object'])
     feedback = FeedbackOutputSerializer(many=True, fields_to_remove=['product'])
 
@@ -26,7 +26,8 @@ class ProductOutputSerializer(DynamicFieldsModelSerializer):
 
 
 class ProductInputSerializer(DynamicFieldsModelSerializer):
-    materials = serializers.ListField(child=serializers.CharField(max_length=255), required=False)
+    materials = serializers.ListField(child=serializers.CharField(max_length=ProductMaterial.name.field.max_length),
+                                      required=False)
     images = serializers.ListField(child=serializers.ImageField(), required=False)
     images_to_delete = serializers.ListField(child=serializers.IntegerField(min_value=0), required=False)
 
