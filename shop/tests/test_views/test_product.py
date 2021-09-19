@@ -7,7 +7,7 @@ from rest_framework import status
 from shop.exceptions import UnhandledValueError
 from shop.models import Category, Product
 from shop.serializers.product import ProductOutputSerializer
-from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import Arg, ClientType, existent_material_name, existent_pk, nonexistent_pk
 
 
 @pytest.mark.django_db
@@ -92,7 +92,7 @@ class TestProductViews:
     def test_post_product(self, client_type, status_code, multi_client, product_factory, get_in_memory_image_file):
         data = factory.build(dict, FACTORY_CLASS=product_factory)
         data['category'] = existent_pk
-        data['materials'] = ['material 1', 'material 2', 'material 3']
+        data['materials'] = [existent_material_name, 'material 2', 'material 3']
         data['images'] = [get_in_memory_image_file]
         data['images_to_delete'] = [1, 2, 3]
         url = reverse('product-list')
@@ -104,6 +104,8 @@ class TestProductViews:
         (ClientType.NOT_AUTH_CLIENT, [], Arg.CORRECT, status.HTTP_403_FORBIDDEN),
         (ClientType.AUTH_CLIENT, [], Arg.CORRECT, status.HTTP_403_FORBIDDEN),
         (ClientType.ADMIN_CLIENT, ['material 1', 'material 2'], Arg.CORRECT, status.HTTP_200_OK),
+        (ClientType.ADMIN_CLIENT, ['material 1', 'material 2', existent_material_name], Arg.CORRECT,
+         status.HTTP_200_OK),
         (ClientType.ADMIN_CLIENT, [], Arg.INCORRECT, status.HTTP_400_BAD_REQUEST)
     ])
     def test_put_product(self, client_type, materials, images_to_delete, status_code, multi_client, product_factory,
