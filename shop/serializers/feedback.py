@@ -25,7 +25,7 @@ class FeedbackOutputSerializer(DynamicFieldsModelSerializer):
         return UserOutputSerializer(obj.author).data
 
 
-class FeedbackInputSerializer(serializers.ModelSerializer):
+class FeedbackInputSerializer(DynamicFieldsModelSerializer):
     images = serializers.ListField(child=serializers.ImageField(), required=False)
     images_to_delete = serializers.ListField(child=serializers.IntegerField(min_value=0), required=False)
 

@@ -21,9 +21,8 @@ class FeedbackList(APIView):
 
     @classmethod
     def post(cls, request):
-        serializer = FeedbackInputSerializer(data=request.data)
+        serializer = FeedbackInputSerializer(data=request.data, fields_to_remove=['images_to_delete'])
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data.pop('images_to_delete', None)
         FeedbackController.create_feedback(request.user, **serializer.validated_data)
 
         return Response(status=status.HTTP_201_CREATED)

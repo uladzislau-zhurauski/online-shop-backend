@@ -25,9 +25,8 @@ class ProductView(APIView):
 
     @check_new_global_permission(IsAdminUser)
     def post(self, request):
-        serializer = ProductInputSerializer(data=request.data)
+        serializer = ProductInputSerializer(data=request.data, fields_to_remove=['images_to_delete'])
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data.pop('images_to_delete', None)
         ProductController.create_product(**serializer.validated_data)
 
         return Response(status=status.HTTP_201_CREATED)
