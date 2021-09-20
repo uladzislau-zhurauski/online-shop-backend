@@ -14,7 +14,7 @@ def is_owner_or_admin_factory(owner_field_name):
     return IsOwnerOrAdmin
 
 
-class IsUserOrAdmin(BasePermission):
+class PermissionValidator(BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj == request.user or request.user.is_staff
 

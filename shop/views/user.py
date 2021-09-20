@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shop.controllers.user import UserController
-from shop.permissions import IsUserOrAdmin, check_object_permissions
+from shop.permissions import PermissionValidator, check_object_permissions
 from shop.serializers.address import AddressOutputSerializer
 from shop.serializers.feedback import FeedbackOutputSerializer
 from shop.serializers.order import OrderOutputSerializer
@@ -12,7 +12,7 @@ from shop.serializers.user import UserInputSerializer, UserOutputSerializer
 
 
 class UserView(APIView):
-    permission_classes = [IsUserOrAdmin]
+    permission_classes = [PermissionValidator]
     http_method_names = ['get', 'post', 'put', 'delete']
 
     def get(self, request, pk=None):
@@ -57,7 +57,7 @@ class UserView(APIView):
 
 
 class UserAddressesView(APIView):
-    permission_classes = [IsUserOrAdmin]
+    permission_classes = [PermissionValidator]
     http_method_names = ['get']
 
     @check_object_permissions(UserController.get_user)
@@ -69,7 +69,7 @@ class UserAddressesView(APIView):
 
 
 class UserFeedbackView(APIView):
-    permission_classes = [IsUserOrAdmin]
+    permission_classes = [PermissionValidator]
     http_method_names = ['get']
 
     @check_object_permissions(UserController.get_user)
@@ -81,7 +81,7 @@ class UserFeedbackView(APIView):
 
 
 class UserOrdersView(APIView):
-    permission_classes = [IsUserOrAdmin]
+    permission_classes = [PermissionValidator]
     http_method_names = ['get']
 
     @check_object_permissions(UserController.get_user)
