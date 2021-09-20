@@ -51,8 +51,10 @@ class ProductController:
                        materials=None, images=None, images_to_delete=None):
         product_obj = cls.get_product(product_pk, True)
         cls.update_product_materials(product_obj, materials)
-        cls.process_images_to_delete(product_obj, images_to_delete)
-        cls.add_images(product_obj, images)
+        if images_to_delete is not None:
+            cls.process_images_to_delete(product_obj, images_to_delete)
+        if images is not None:
+            ProductDAL.create_images(product_obj, images)
         ProductDAL.update_product(product_obj, category, name, price, description, size, weight, stock, is_available)
 
     @classmethod
@@ -81,10 +83,9 @@ class ProductController:
 
     @classmethod
     def process_images_to_delete(cls, product_obj, images_pk_to_delete):
-        if images_pk_to_delete is not None:
-            cls.validate_images_pk_to_delete(product_obj, images_pk_to_delete)
-            images_to_delete = [ImageController.get_image(image_pk) for image_pk in images_pk_to_delete]
-            [ImageDAL.delete_image(image) for image in images_to_delete]
+        cls.validate_images_pk_to_delete(product_obj, images_pk_to_delete)
+        images_to_delete = [ImageController.get_image(image_pk) for image_pk in images_pk_to_delete]
+        [ImageDAL.delete_image(image) for image in images_to_delete]
 
     @classmethod
     def validate_images_pk_to_delete(cls, product_obj, images_pk_to_delete):
@@ -92,11 +93,6 @@ class ProductController:
         if not are_all_elements_in_list(images_pk_to_delete, existing_images_pk):
             raise serializers.ValidationError({'images_to_delete': 'Image with such pk doesn\'t belong to this '
                                                                    'product or doesn\'t exist!'})
-
-    @classmethod
-    def add_images(cls, product_obj, images):
-        if images is not None:
-            ProductDAL.create_images(product_obj, images)
 
     @classmethod
     def delete_product(cls, product_pk):
