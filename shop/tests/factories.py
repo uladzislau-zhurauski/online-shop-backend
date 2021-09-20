@@ -128,10 +128,10 @@ class ProductMaterialFactory(factory.django.DjangoModelFactory):
         model = 'shop.ProductMaterial'
 
     @factory.post_generation
-    def products(self, create, extracted):
-        if not create:
-            # Simple build
+    def products(self, is_create, product_list):
+        if not is_create:
+            # Simple build, nothing to do
             return
-        if extracted:
+        if product_list:
             # A list of products were passed in
-            self.products.add(*extracted)
+            self.products.add(*product_list)
