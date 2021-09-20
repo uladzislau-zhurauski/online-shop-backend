@@ -13,11 +13,12 @@ class ImageController:
     @classmethod
     def create_image(cls, image, content_type, object_id):
         image_obj = ImageDAL.create_image(image, content_type, object_id)
-        cls.validate_image(image_obj)
+        cls.validate_image(content_type, object_id)
         ImageDAL.save_image(image_obj)
 
     @classmethod
-    def validate_image(cls, image_obj):
+    def validate_image(cls, content_type, object_id):
+        image_obj = ImageDAL.create_image(None, content_type, object_id)
         if not image_obj.content_object:
             raise serializers.ValidationError(
                 f'{image_obj.content_type.name.capitalize()} object with primary key {image_obj.object_id} doesn'
@@ -33,7 +34,7 @@ class ImageController:
     @classmethod
     def update_image(cls, image_pk, image, content_type, object_id):
         image_obj = cls.get_image(image_pk)
-        cls.validate_image(ImageDAL.create_image(image, content_type, object_id))
+        cls.validate_image(content_type, object_id)
         ImageDAL.update_image(image_obj, image, content_type, object_id)
 
     @classmethod
