@@ -32,6 +32,4 @@ class MaterialController:
 
     @classmethod
     def is_the_same_name(cls, material_pk, new_name):
-        if new_name == cls.get_material(material_pk).name:
-            return True
-        return False
+        return new_name == cls.get_material(material_pk).name
