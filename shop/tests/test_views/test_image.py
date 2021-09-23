@@ -6,7 +6,7 @@ from rest_framework import status
 from shop.exceptions import UnhandledValueError
 from shop.models import Image, Order, get_image_models
 from shop.serializers.image import ImageOutputSerializer
-from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import Arg, ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
 @pytest.fixture
@@ -36,15 +36,15 @@ class TestImageViews:
     @pytest.mark.parametrize('client_type, image, content_type, object_id, status_code', [
         (ClientType.NOT_AUTH_CLIENT, None, None, None, status.HTTP_403_FORBIDDEN),
         (ClientType.ADMIN_CLIENT, None, None, None, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, None, nonexistent_pk, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, None, existent_pk, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, None, NONEXISTENT_PK, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, None, EXISTENT_PK, status.HTTP_400_BAD_REQUEST),
         (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.INCORRECT, None, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.INCORRECT, nonexistent_pk, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.INCORRECT, existent_pk, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.INCORRECT, NONEXISTENT_PK, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.INCORRECT, EXISTENT_PK, status.HTTP_400_BAD_REQUEST),
         (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.CORRECT, None, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.CORRECT, nonexistent_pk, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.INCORRECT, Arg.CORRECT, existent_pk, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.CORRECT, existent_pk, status.HTTP_201_CREATED),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.CORRECT, NONEXISTENT_PK, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.INCORRECT, Arg.CORRECT, EXISTENT_PK, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, Arg.CORRECT, Arg.CORRECT, EXISTENT_PK, status.HTTP_201_CREATED),
     ])
     @pytest.mark.parametrize('method_type', ['post', 'put'])
     def test_post_and_put_image(self, method_type, client_type, image, content_type, object_id, status_code,
@@ -73,7 +73,7 @@ class TestImageViews:
         assert response.status_code == status_code
 
     def test_get_image_with_nonexistent_pk(self, authenticated_api_client):
-        url = reverse('image-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('image-detail', kwargs={'pk': NONEXISTENT_PK})
         response = authenticated_api_client(is_admin=True).get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -88,10 +88,10 @@ class TestImageViews:
 
     @pytest.mark.parametrize(
         'client_type, image_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, nonexistent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, nonexistent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT)
+            (ClientType.NOT_AUTH_CLIENT, NONEXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, NONEXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
         ]
     )
     def test_delete_image(self, client_type, status_code, image_pk, multi_client):

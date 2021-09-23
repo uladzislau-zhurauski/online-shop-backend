@@ -6,7 +6,7 @@ from rest_framework import status
 from shop.exceptions import UnhandledValueError
 from shop.models import OrderItem
 from shop.serializers.order_item import OrderItemOutputSerializer
-from shop.tests.conftest import ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
 @pytest.mark.django_db
@@ -31,7 +31,7 @@ class TestOrderItemViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)
     ])
     def test_get_order_item_with_nonexistent_pk(self, client_type, status_code, multi_client):
-        url = reverse('order-item-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('order-item-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -58,7 +58,7 @@ class TestOrderItemViews:
     @pytest.mark.parametrize('method_type', ['post', 'put'])
     def test_post_and_put_order_item(self, client_type, status_code, multi_client, method_type, order_item_factory):
         data = factory.build(dict, FACTORY_CLASS=order_item_factory)
-        data['product'] = data['order'] = existent_pk
+        data['product'] = data['order'] = EXISTENT_PK
         if method_type == 'post':
             url = reverse('order-item-list')
             response = multi_client(client_type).post(url, data=data)
@@ -74,10 +74,10 @@ class TestOrderItemViews:
 
     @pytest.mark.parametrize(
         'client_type, order_item_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT)
+            (ClientType.NOT_AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
         ]
     )
     def test_delete_order_item(self, client_type, status_code, order_item_pk, multi_client):

@@ -6,7 +6,7 @@ from rest_framework import status
 
 from shop.models import Order
 from shop.serializers.order import OrderOutputSerializer
-from shop.tests.conftest import ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
 @pytest.mark.django_db
@@ -37,7 +37,7 @@ class TestOrderViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)
     ])
     def test_get_order_with_nonexistent_pk(self, client_type, status_code, multi_client):
-        url = reverse('order-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('order-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -64,9 +64,9 @@ class TestOrderViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_201_CREATED)
     ])
     def test_post_order(self, client_type, status_code, multi_client):
-        data = {'address': existent_pk}
+        data = {'address': EXISTENT_PK}
         url = reverse('order-list')
-        user = Order.objects.get(pk=existent_pk).user if client_type == ClientType.AUTHOR_CLIENT else None
+        user = Order.objects.get(pk=EXISTENT_PK).user if client_type == ClientType.AUTHOR_CLIENT else None
         response = multi_client(client_type, user).post(url, data=data)
 
         assert response.status_code == status_code
@@ -79,7 +79,7 @@ class TestOrderViews:
     ])
     def test_put_order(self, client_type, status_code, multi_client):
         order = Order.objects.first()
-        data = {'address': existent_pk}
+        data = {'address': EXISTENT_PK}
         url = reverse('order-detail', kwargs={'pk': order.pk})
         user = order.user if client_type == ClientType.AUTHOR_CLIENT else None
         response = multi_client(client_type, user).put(url, data=data)
@@ -88,17 +88,17 @@ class TestOrderViews:
 
     @pytest.mark.parametrize(
         'client_type, order_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTHOR_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.AUTHOR_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT)
+            (ClientType.NOT_AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTHOR_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
         ]
     )
     def test_delete_order(self, client_type, status_code, order_pk, multi_client):
         url = reverse('order-detail', kwargs={'pk': order_pk})
-        if client_type == ClientType.AUTHOR_CLIENT and order_pk == existent_pk:
+        if client_type == ClientType.AUTHOR_CLIENT and order_pk == EXISTENT_PK:
             user = Order.objects.get(pk=order_pk).user
         else:
             user = None

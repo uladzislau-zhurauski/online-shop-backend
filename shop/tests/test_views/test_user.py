@@ -8,7 +8,7 @@ from shop.serializers.address import AddressOutputSerializer
 from shop.serializers.feedback import FeedbackOutputSerializer
 from shop.serializers.order import OrderOutputSerializer
 from shop.serializers.user import UserOutputSerializer
-from shop.tests.conftest import ClientType, existent_pk, existent_username, nonexistent_pk, nonexistent_username
+from shop.tests.conftest import ClientType, EXISTENT_PK, EXISTENT_USERNAME, NONEXISTENT_PK, NONEXISTENT_USERNAME
 
 
 @pytest.mark.django_db
@@ -34,7 +34,7 @@ class TestUserViews:
         (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)
     ])
     def test_get_user_with_nonexistent_pk(self, client_type, status_code, multi_client):
-        url = reverse('user-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('user-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
@@ -60,13 +60,13 @@ class TestUserViews:
                                                          fields_to_remove=['addresses', 'feedback', 'orders']).data
 
     @pytest.mark.parametrize('client_type, username, is_staff, is_superuser, status_code', [
-        (ClientType.NOT_AUTH_CLIENT, nonexistent_username, True, True, status.HTTP_201_CREATED),
-        (ClientType.AUTH_CLIENT, nonexistent_username, True, True, status.HTTP_201_CREATED),
-        (ClientType.ADMIN_CLIENT, existent_username, False, False, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, False, False, status.HTTP_201_CREATED),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, True, True, status.HTTP_201_CREATED),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, True, False, status.HTTP_201_CREATED),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, False, True, status.HTTP_400_BAD_REQUEST)
+        (ClientType.NOT_AUTH_CLIENT, NONEXISTENT_USERNAME, True, True, status.HTTP_201_CREATED),
+        (ClientType.AUTH_CLIENT, NONEXISTENT_USERNAME, True, True, status.HTTP_201_CREATED),
+        (ClientType.ADMIN_CLIENT, EXISTENT_USERNAME, False, False, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, False, False, status.HTTP_201_CREATED),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, True, True, status.HTTP_201_CREATED),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, True, False, status.HTTP_201_CREATED),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, False, True, status.HTTP_400_BAD_REQUEST)
     ])
     def test_post_user(self, username, is_staff, is_superuser, client_type, status_code,
                        multi_client, user_factory):
@@ -78,22 +78,22 @@ class TestUserViews:
         assert response.status_code == status_code
 
     @pytest.mark.parametrize('client_type, username, is_staff, is_superuser, status_code', [
-        (ClientType.NOT_AUTH_CLIENT, nonexistent_username, False, False, status.HTTP_403_FORBIDDEN),
-        (ClientType.AUTH_CLIENT, nonexistent_username, False, False, status.HTTP_403_FORBIDDEN),
-        (ClientType.ADMIN_CLIENT, existent_username, False, False, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, existent_username, False, False, status.HTTP_400_BAD_REQUEST),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, False, False, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, True, True, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, True, False, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, nonexistent_username, False, True, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTHOR_CLIENT, nonexistent_username, True, True, status.HTTP_200_OK)
+        (ClientType.NOT_AUTH_CLIENT, NONEXISTENT_USERNAME, False, False, status.HTTP_403_FORBIDDEN),
+        (ClientType.AUTH_CLIENT, NONEXISTENT_USERNAME, False, False, status.HTTP_403_FORBIDDEN),
+        (ClientType.ADMIN_CLIENT, EXISTENT_USERNAME, False, False, status.HTTP_200_OK),
+        (ClientType.ADMIN_CLIENT, EXISTENT_USERNAME, False, False, status.HTTP_400_BAD_REQUEST),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, False, False, status.HTTP_200_OK),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, True, True, status.HTTP_200_OK),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, True, False, status.HTTP_200_OK),
+        (ClientType.ADMIN_CLIENT, NONEXISTENT_USERNAME, False, True, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTHOR_CLIENT, NONEXISTENT_USERNAME, True, True, status.HTTP_200_OK)
     ])
     def test_put_user(self, username, is_staff, is_superuser, client_type, status_code,
                       multi_client, user_factory):
         data = factory.build(dict, FACTORY_CLASS=user_factory, username=username, is_staff=is_staff,
                              is_superuser=is_superuser)
-        if username == nonexistent_username:
-            pk = existent_pk
+        if username == NONEXISTENT_USERNAME:
+            pk = EXISTENT_PK
         else:
             if status_code == status.HTTP_200_OK:  # update user with his username should be ok
                 pk = get_user_model().objects.get(username=username).pk
@@ -110,11 +110,11 @@ class TestUserViews:
 
     @pytest.mark.parametrize(
         'client_type, user_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT),
-            (ClientType.AUTHOR_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT)
+            (ClientType.NOT_AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
         ]
     )
     def test_delete_user(self, client_type, status_code, user_pk, multi_client):

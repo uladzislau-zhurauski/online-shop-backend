@@ -6,7 +6,7 @@ from rest_framework import status
 
 from shop.models import Address
 from shop.serializers.address import AddressOutputSerializer
-from shop.tests.conftest import ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
 @pytest.mark.django_db
@@ -32,7 +32,7 @@ class TestAddressViews:
             assert response.data == AddressOutputSerializer(instance=address_list, many=True).data
 
     def test_get_address_with_nonexistent_pk(self, authenticated_api_client):
-        url = reverse('address-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('address-detail', kwargs={'pk': NONEXISTENT_PK})
         response = authenticated_api_client(is_admin=True).get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -82,17 +82,17 @@ class TestAddressViews:
 
     @pytest.mark.parametrize(
         'client_type, address_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, existent_pk, status.HTTP_403_FORBIDDEN),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT),
-            (ClientType.AUTHOR_CLIENT, nonexistent_pk, status.HTTP_404_NOT_FOUND),
-            (ClientType.AUTHOR_CLIENT, existent_pk, status.HTTP_204_NO_CONTENT)
+            (ClientType.NOT_AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT),
+            (ClientType.AUTHOR_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
         ]
     )
     def test_delete_address(self, client_type, status_code, address_pk, multi_client):
         url = reverse('address-detail', kwargs={'pk': address_pk})
-        if client_type == ClientType.AUTHOR_CLIENT and address_pk == existent_pk:
+        if client_type == ClientType.AUTHOR_CLIENT and address_pk == EXISTENT_PK:
             user = Address.objects.get(pk=address_pk).user
         else:
             user = None

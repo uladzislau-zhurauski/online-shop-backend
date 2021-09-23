@@ -7,7 +7,7 @@ from rest_framework import status
 from shop.exceptions import UnhandledValueError
 from shop.models import Category, Product
 from shop.serializers.product import ProductOutputSerializer
-from shop.tests.conftest import Arg, ClientType, existent_material_name, existent_pk, nonexistent_pk
+from shop.tests.conftest import Arg, ClientType, EXISTENT_MATERIAL_NAME, EXISTENT_PK, NONEXISTENT_PK
 
 
 @pytest.mark.django_db
@@ -56,7 +56,7 @@ class TestProductViews:
     @pytest.mark.parametrize('client_type',
                              [ClientType.NOT_AUTH_CLIENT, ClientType.AUTH_CLIENT, ClientType.ADMIN_CLIENT])
     def test_get_product_with_nonexistent_pk(self, client_type, multi_client):
-        url = reverse('product-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('product-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -91,8 +91,8 @@ class TestProductViews:
     ])
     def test_post_product(self, client_type, status_code, multi_client, product_factory, get_in_memory_image_file):
         data = factory.build(dict, FACTORY_CLASS=product_factory)
-        data['category'] = existent_pk
-        data['materials'] = [existent_material_name, 'material 2', 'material 3']
+        data['category'] = EXISTENT_PK
+        data['materials'] = [EXISTENT_MATERIAL_NAME, 'material 2', 'material 3']
         data['images'] = [get_in_memory_image_file]
         data['images_to_delete'] = [1, 2, 3]
         url = reverse('product-list')
@@ -104,7 +104,7 @@ class TestProductViews:
         (ClientType.NOT_AUTH_CLIENT, [], Arg.CORRECT, status.HTTP_403_FORBIDDEN),
         (ClientType.AUTH_CLIENT, [], Arg.CORRECT, status.HTTP_403_FORBIDDEN),
         (ClientType.ADMIN_CLIENT, ['material 1', 'material 2'], Arg.CORRECT, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, ['material 1', 'material 2', existent_material_name], Arg.CORRECT,
+        (ClientType.ADMIN_CLIENT, ['material 1', 'material 2', EXISTENT_MATERIAL_NAME], Arg.CORRECT,
          status.HTTP_200_OK),
         (ClientType.ADMIN_CLIENT, [], Arg.INCORRECT, status.HTTP_400_BAD_REQUEST)
     ])
@@ -112,13 +112,13 @@ class TestProductViews:
                          get_in_memory_image_file):
         product_to_update = Product.objects.first()
         data = factory.build(dict, FACTORY_CLASS=product_factory)
-        data['category'] = existent_pk
+        data['category'] = EXISTENT_PK
         data['materials'] = materials
         data['images'] = [get_in_memory_image_file]
         if images_to_delete == Arg.CORRECT:
             data['images_to_delete'] = [product_to_update.images.first().pk]
         elif images_to_delete == Arg.INCORRECT:
-            data['images_to_delete'] = [nonexistent_pk]
+            data['images_to_delete'] = [NONEXISTENT_PK]
         else:
             raise UnhandledValueError(images_to_delete)
         url = reverse('product-detail', kwargs={'pk': product_to_update.pk})
@@ -133,7 +133,7 @@ class TestProductViews:
                               (ClientType.AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
                               (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)])
     def test_delete_product_with_nonexistent_pk(self, client_type, status_code, multi_client):
-        url = reverse('product-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('product-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).delete(url)
 
         assert response.status_code == status_code

@@ -22,12 +22,17 @@ register(OrderFactory)
 register(OrderItemFactory)
 register(ProductMaterialFactory)
 
-nonexistent_pk = 0
-existent_pk = 1
-nonexistent_username = 'unique_username'
-existent_username = 'user0'
-nonexistent_material_name = 'Unique material name'
-existent_material_name = 'Product material 0'
+NONEXISTENT_PK = 0
+EXISTENT_PK = 1
+NONEXISTENT_USERNAME = 'unique_username'
+EXISTENT_USERNAME = 'user0'
+NONEXISTENT_MATERIAL_NAME = 'Unique material name'
+EXISTENT_MATERIAL_NAME = 'Product material 0'
+
+
+class Arg(Enum):
+    CORRECT = auto()
+    INCORRECT = auto()
 
 
 @pytest.fixture(scope='session')
@@ -125,8 +130,3 @@ def get_in_memory_file():
     temp_buffer = io.BytesIO(b'some_binary_data')
     yield temp_buffer
     temp_buffer.close()
-
-
-class Arg(Enum):
-    CORRECT = auto()
-    INCORRECT = auto()

@@ -9,7 +9,7 @@ from rest_framework import status
 from shop.exceptions import UnhandledValueError
 from shop.models import Feedback, Image
 from shop.serializers.feedback import FeedbackOutputSerializer
-from shop.tests.conftest import Arg, ClientType, existent_pk, nonexistent_pk
+from shop.tests.conftest import Arg, ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
 class ImagesToDelete(Enum):
@@ -37,11 +37,11 @@ def get_images_to_delete():
                                     .filter(content_type=ContentType.objects.get_for_model(Feedback)).first().pk)
             data['images_to_delete'] = images_to_delete
         elif variant == ImagesToDelete.ALL_INCORRECT:
-            data['images_to_delete'] = [nonexistent_pk]
+            data['images_to_delete'] = [NONEXISTENT_PK]
         elif variant == ImagesToDelete.EMPTY:
             data['images_to_delete'] = []
         elif variant == ImagesToDelete.WITHOUT_IMAGES:
-            data['images_to_delete'] = [existent_pk]
+            data['images_to_delete'] = [EXISTENT_PK]
         elif variant is None:
             pass
         else:
@@ -67,11 +67,11 @@ class TestFeedbackViews:
         (ClientType.AUTH_CLIENT, None, None, None, None, status.HTTP_400_BAD_REQUEST),
         (ClientType.AUTH_CLIENT, None, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
         (ClientType.AUTH_CLIENT, None, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, nonexistent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, existent_pk, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, existent_pk, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, existent_pk, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
-        (ClientType.AUTH_CLIENT, existent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_201_CREATED),
+        (ClientType.AUTH_CLIENT, NONEXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, EXISTENT_PK, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, EXISTENT_PK, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, EXISTENT_PK, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
+        (ClientType.AUTH_CLIENT, EXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_201_CREATED),
     ])
     def test_post_feedback(self, client_type, feedback_product, title, content, images, status_code, multi_client,
                            get_in_memory_image_file, get_in_memory_file):
@@ -90,7 +90,7 @@ class TestFeedbackViews:
         assert response.status_code == status_code
 
     def test_get_feedback_with_nonexistent_pk(self, api_client):
-        url = reverse('feedback-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('feedback-detail', kwargs={'pk': NONEXISTENT_PK})
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -117,19 +117,19 @@ class TestFeedbackViews:
             (ClientType.ADMIN_CLIENT, None, None, None, None, status.HTTP_400_BAD_REQUEST),
             (ClientType.ADMIN_CLIENT, None, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
             (ClientType.ADMIN_CLIENT, None, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, nonexistent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, existent_pk, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, existent_pk, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, existent_pk, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.ADMIN_CLIENT, existent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_200_OK),
+            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.ADMIN_CLIENT, EXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_200_OK),
             (ClientType.AUTHOR_CLIENT, None, None, None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
             (ClientType.AUTHOR_CLIENT, None, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
             (ClientType.AUTHOR_CLIENT, None, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, nonexistent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, existent_pk, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, existent_pk, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, existent_pk, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
-            (ClientType.AUTHOR_CLIENT, existent_pk, 'title', 'content', Arg.CORRECT, status.HTTP_200_OK),
+            (ClientType.AUTHOR_CLIENT, NONEXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, None, 'content', Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, 'title', None, Arg.CORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, 'title', 'content', Arg.INCORRECT, status.HTTP_400_BAD_REQUEST),
+            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, 'title', 'content', Arg.CORRECT, status.HTTP_200_OK),
         ]
     )
     def test_put_feedback(self, client_type, status_code, feedback_product, title, content, images, multi_client,
@@ -194,7 +194,7 @@ class TestFeedbackViews:
         assert response.status_code == status_code
 
     def test_delete_feedback_with_nonexistent_pk(self, authenticated_api_client):
-        url = reverse('feedback-detail', kwargs={'pk': nonexistent_pk})
+        url = reverse('feedback-detail', kwargs={'pk': NONEXISTENT_PK})
         response = authenticated_api_client(is_admin=True).delete(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
