@@ -30,8 +30,9 @@ class ImageOutputSerializer(DynamicFieldsModelSerializer):
     def get_content_object(instance):
         for image_model_class in get_image_models():
             if isinstance(instance.content_object, image_model_class):
-                image_model_module = importlib.import_module(f'{__package__}.{image_model_class.__name__.lower()}')
-                image_model_serializer = getattr(image_model_module, f'{image_model_class.__name__}OutputSerializer')
+                model_name = image_model_class.__name__
+                image_model_module = importlib.import_module(f'{__package__}.{model_name.lower()}')
+                image_model_serializer = getattr(image_model_module, f'{model_name}OutputSerializer')
                 return image_model_serializer(instance.content_object).data
         raise TypeError('Unexpected type of image object')
 
