@@ -9,99 +9,138 @@ from shop.serializers.order import OrderOutputSerializer
 from shop.tests.conftest import ClientType, EXISTENT_PK, NONEXISTENT_PK
 
 
+@pytest.fixture
+def order_data():
+    return {'address': EXISTENT_PK}
+
+
 @pytest.mark.django_db
 class TestOrderViews:
-    @pytest.mark.parametrize('client_type, status_code', [
-        (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
-        (ClientType.AUTH_CLIENT, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, status.HTTP_200_OK)
-    ])
-    def test_get_order_list(self, client_type, status_code, multi_client):
-        if client_type == ClientType.AUTH_CLIENT:
-            user = get_user_model().objects.annotate(orders_count=Count('orders')).filter(orders_count__gt=1).first()
-            order_list = Order.objects.filter(user=user)
-        else:
-            user = None
-            order_list = Order.objects.all()
+    def test_get_order_list_by_not_auth_client(self, api_client):
         url = reverse('order-list')
-        response = multi_client(client_type, user).get(url)
+        response = api_client.get(url)
 
-        assert response.status_code == status_code
-        if client_type != ClientType.NOT_AUTH_CLIENT:
-            assert response.data == OrderOutputSerializer(instance=order_list, many=True).data
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_get_order_list_by_auth_client(self, authenticated_api_client):
+        user = get_user_model().objects.annotate(orders_count=Count('orders')).filter(orders_count__gt=1).first()
+        order_list = Order.objects.filter(user=user)
+        url = reverse('order-list')
+        response = authenticated_api_client(is_admin=False, user=user).get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == OrderOutputSerializer(instance=order_list, many=True).data
+
+    def test_get_order_list_by_admin(self, authenticated_api_client):
+        order_list = Order.objects.all()
+        url = reverse('order-list')
+        response = authenticated_api_client(is_admin=True).get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == OrderOutputSerializer(instance=order_list, many=True).data
 
     @pytest.mark.parametrize('client_type, status_code', [
         (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
         (ClientType.AUTH_CLIENT, status.HTTP_404_NOT_FOUND),
-        (ClientType.AUTHOR_CLIENT, status.HTTP_404_NOT_FOUND),
         (ClientType.ADMIN_CLIENT, status.HTTP_404_NOT_FOUND)
     ])
-    def test_get_order_with_nonexistent_pk(self, client_type, status_code, multi_client):
+    def test_get_nonexistent_order(self, client_type, status_code, multi_client):
         url = reverse('order-detail', kwargs={'pk': NONEXISTENT_PK})
         response = multi_client(client_type).get(url)
 
         assert response.status_code == status_code
 
-    @pytest.mark.parametrize('client_type, status_code', [
-        (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
-        (ClientType.AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
-        (ClientType.AUTHOR_CLIENT, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, status.HTTP_200_OK)
+    @pytest.mark.parametrize('client_type', [
+        ClientType.NOT_AUTH_CLIENT,
+        ClientType.AUTH_CLIENT
     ])
-    def test_get_order(self, client_type, status_code, multi_client):
+    def test_forbidden_get_order(self, client_type, multi_client):
+        url = reverse('order-detail', kwargs={'pk': EXISTENT_PK})
+        response = multi_client(client_type).get(url)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_get_order_by_author(self, authenticated_api_client):
         order = Order.objects.first()
         url = reverse('order-detail', kwargs={'pk': order.pk})
-        user = order.user if client_type == ClientType.AUTHOR_CLIENT else None
-        response = multi_client(client_type, user).get(url)
+        response = authenticated_api_client(is_admin=False, user=order.user).get(url)
 
-        assert response.status_code == status_code
-        if client_type == ClientType.AUTHOR_CLIENT or client_type == ClientType.ADMIN_CLIENT:
-            assert response.data == OrderOutputSerializer(instance=order).data
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == OrderOutputSerializer(instance=order).data
+
+    def test_get_order_by_admin(self, authenticated_api_client):
+        order = Order.objects.first()
+        url = reverse('order-detail', kwargs={'pk': order.pk})
+        response = authenticated_api_client(is_admin=True).get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == OrderOutputSerializer(instance=order).data
 
     @pytest.mark.parametrize('client_type, status_code', [
         (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
         (ClientType.AUTH_CLIENT, status.HTTP_201_CREATED),
         (ClientType.ADMIN_CLIENT, status.HTTP_201_CREATED)
     ])
-    def test_post_order(self, client_type, status_code, multi_client):
-        data = {'address': EXISTENT_PK}
+    def test_post_order(self, client_type, status_code, multi_client, order_data):
+        data = order_data
         url = reverse('order-list')
-        user = Order.objects.get(pk=EXISTENT_PK).user if client_type == ClientType.AUTHOR_CLIENT else None
-        response = multi_client(client_type, user).post(url, data=data)
+        response = multi_client(client_type).post(url, data=data)
 
         assert response.status_code == status_code
+
+    def test_put_nonexistent_order(self, authenticated_api_client, order_data):
+        data = order_data
+        url = reverse('order-detail', kwargs={'pk': NONEXISTENT_PK})
+        response = authenticated_api_client(is_admin=True).put(url, data=data)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.parametrize('client_type', [
+        ClientType.NOT_AUTH_CLIENT,
+        ClientType.AUTH_CLIENT
+    ])
+    def test_forbidden_put_order(self, client_type, multi_client, order_data):
+        data = order_data
+        url = reverse('order-detail', kwargs={'pk': EXISTENT_PK})
+        response = multi_client(client_type).put(url, data=data)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_put_order_by_author(self, authenticated_api_client, order_data):
+        order = Order.objects.first()
+        data = order_data
+        url = reverse('order-detail', kwargs={'pk': order.pk})
+        response = authenticated_api_client(is_admin=False, user=order.user).put(url, data=data)
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_put_order_by_admin(self, authenticated_api_client, order_data):
+        data = order_data
+        url = reverse('order-detail', kwargs={'pk': EXISTENT_PK})
+        response = authenticated_api_client(is_admin=True).put(url, data=data)
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_delete_nonexistent_order(self, authenticated_api_client):
+        url = reverse('order-detail', kwargs={'pk': NONEXISTENT_PK})
+        response = authenticated_api_client(is_admin=True).delete(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.parametrize('client_type, status_code', [
         (ClientType.NOT_AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
         (ClientType.AUTH_CLIENT, status.HTTP_403_FORBIDDEN),
-        (ClientType.AUTHOR_CLIENT, status.HTTP_200_OK),
-        (ClientType.ADMIN_CLIENT, status.HTTP_200_OK)
+        (ClientType.ADMIN_CLIENT, status.HTTP_204_NO_CONTENT)
     ])
-    def test_put_order(self, client_type, status_code, multi_client):
+    def test_delete_existent_order(self, client_type, status_code, multi_client):
+        url = reverse('order-detail', kwargs={'pk': EXISTENT_PK})
+        response = multi_client(client_type).delete(url)
+
+        assert response.status_code == status_code
+
+    def test_delete_existent_order_by_author(self, authenticated_api_client):
         order = Order.objects.first()
-        data = {'address': EXISTENT_PK}
         url = reverse('order-detail', kwargs={'pk': order.pk})
-        user = order.user if client_type == ClientType.AUTHOR_CLIENT else None
-        response = multi_client(client_type, user).put(url, data=data)
+        response = authenticated_api_client(is_admin=False, user=order.user).delete(url)
 
-        assert response.status_code == status_code
-
-    @pytest.mark.parametrize(
-        'client_type, order_pk, status_code', [
-            (ClientType.NOT_AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTH_CLIENT, EXISTENT_PK, status.HTTP_403_FORBIDDEN),
-            (ClientType.AUTHOR_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
-            (ClientType.AUTHOR_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT),
-            (ClientType.ADMIN_CLIENT, NONEXISTENT_PK, status.HTTP_404_NOT_FOUND),
-            (ClientType.ADMIN_CLIENT, EXISTENT_PK, status.HTTP_204_NO_CONTENT)
-        ]
-    )
-    def test_delete_order(self, client_type, status_code, order_pk, multi_client):
-        url = reverse('order-detail', kwargs={'pk': order_pk})
-        if client_type == ClientType.AUTHOR_CLIENT and order_pk == EXISTENT_PK:
-            user = Order.objects.get(pk=order_pk).user
-        else:
-            user = None
-        response = multi_client(client_type, user).delete(url)
-
-        assert response.status_code == status_code
+        assert response.status_code == status.HTTP_204_NO_CONTENT
