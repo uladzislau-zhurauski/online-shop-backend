@@ -94,7 +94,11 @@ def multi_client(api_client, authenticated_api_client):
     def _multi_client(client_type, user=None):
         if client_type is ClientType.NOT_AUTH_CLIENT:
             return api_client
-        elif client_type is ClientType.AUTH_CLIENT or client_type == ClientType.AUTHOR_CLIENT:
+        elif client_type is ClientType.AUTH_CLIENT:
+            return authenticated_api_client(is_admin=False, user=user)
+        elif client_type == ClientType.AUTHOR_CLIENT:
+            if user is None:
+                raise ValueError('The author client type must be sent with a user object')
             return authenticated_api_client(is_admin=False, user=user)
         elif client_type is ClientType.ADMIN_CLIENT:
             return authenticated_api_client(is_admin=True, user=user)
